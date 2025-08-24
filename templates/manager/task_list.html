@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Tasks - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <h1>Task Management</h1>
+
+    {% if tasks %}
+      <div class="row">
+        {% for task in tasks %}
+          <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">{{ task.name }}</h5>
+                <p class="card-text">{{ task.description|truncatewords:10 }}</p>
+
+                <div class="mb-2">
+                  <span class="badge bg-{{ task.priority|lower }}">{{ task.get_priority_display }}</span>
+                  <span class="badge bg-secondary">{{ task.task_type }}</span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-muted">{{ task.deadline|date:"M d, Y" }}</small>
+                  {% if task.is_completed %}
+                    <span class="text-success">✓ Completed</span>
+                  {% else %}
+                    <span class="text-warning">⏱ Pending</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-info">
+        <h4>No tasks yet!</h4>
+        <p>Start by creating some tasks in the admin panel.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

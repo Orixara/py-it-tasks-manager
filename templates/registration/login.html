@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+
+{% block title %}Login - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow">
+      <div class="card-body">
+        <h2 class="text-center mb-4">
+          <i class="bi bi-person-circle"></i> Login
+        </h2>
+
+        <form method="post">
+          {% csrf_token %}
+          {{ form|crispy }}
+
+          <button type="submit" class="btn btn-primary w-100 mb-3">
+            <i class="bi bi-box-arrow-in-right"></i> Login
+          </button>
+        </form>
+
+        <div class="text-center">
+          <p>Don't have an account? <a href="{% url 'accounts:signup' %}">Sign up here</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

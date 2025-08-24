@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow">
+      <div class="card-body">
+        <h2 class="text-center mb-4">
+          <i class="bi bi-person-plus"></i> Create Account
+        </h2>
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="row">
+            <div class="col-md-6">
+              {{ form.first_name|as_crispy_field }}
+            </div>
+            <div class="col-md-6">
+              {{ form.last_name|as_crispy_field }}
+            </div>
+          </div>
+
+          {{ form.username|as_crispy_field }}
+          {{ form.email|as_crispy_field }}
+          {{ form.position|as_crispy_field }}
+          {{ form.password1|as_crispy_field }}
+          {{ form.password2|as_crispy_field }}
+
+          <button type="submit" class="btn btn-success w-100 mb-3">
+            <i class="bi bi-person-check"></i> Sign Up
+          </button>
+        </form>
+
+        <div class="text-center">
+          <p>Already have an account? <a href="{% url 'accounts:login' %}">Login here</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
