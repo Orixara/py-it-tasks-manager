@@ -30,15 +30,18 @@
                 </a>
               </li>
               <li>
-                <a class="dropdown-item" href="{% url 'admin:logout' %}?next={% url 'manager:task-list' %}">
-                  <i class="bi bi-box-arrow-right"></i> Logout
-                </a>
+                <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="dropdown-item border-0 bg-transparent">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                  </button>
+                </form>
               </li>
             </ul>
           </li>
         {% else %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'admin:login' %}">Login</a>
+            <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'accounts:signup' %}">

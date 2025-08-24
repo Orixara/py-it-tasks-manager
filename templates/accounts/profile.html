@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-body">
+        <h2><i class="bi bi-person"></i> My Profile</h2>
+
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>First Name:</strong> {{ user.first_name|default:"Not set" }}</p>
+            <p><strong>Last Name:</strong> {{ user.last_name|default:"Not set" }}</p>
+            <p><strong>Position:</strong> {{ user.position|default:"Not set" }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <h5>My Tasks Stats</h5>
+        <p><strong>Assigned to me:</strong> {{ assigned_count }}</p>
+        <p><strong>Created by me:</strong> {{ created_count }}</p>
+        <p><strong>Completed:</strong> {{ completed_count }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

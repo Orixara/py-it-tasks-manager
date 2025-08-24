@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Logged out - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="alert alert-success text-center">
+      <h4><i class="bi bi-check-circle"></i> Successfully logged out!</h4>
+      <p>You have been logged out successfully.</p>
+      <a href="{% url 'accounts:login' %}" class="btn btn-primary">Login again</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
