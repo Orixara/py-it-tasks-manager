@@ -1,5 +1,5 @@
 from django.urls import reverse_lazy
-from django.views import generic
+from django.views import generic, View
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -9,6 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from manager.forms import TaskForm, TaskFilterForm
 from manager.models import Task
 from manager.services import apply_task_filters, build_sticky_querystring
+from manager.mixins import TaskPermissionMixin, TaskPermissionJSONMixin
 
 
 class TaskListView(LoginRequiredMixin, generic.ListView):
@@ -31,7 +32,6 @@ class TaskListView(LoginRequiredMixin, generic.ListView):
         )
         context["current_query"] = build_sticky_querystring(self.request.GET)
         return context
-
 
 class TaskKanbanView(LoginRequiredMixin, generic.ListView):
     model = Task
@@ -86,7 +86,7 @@ class TaskCreateView(LoginRequiredMixin, generic.CreateView):
         return context
 
 
-class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
+class TaskUpdateView(LoginRequiredMixin, TaskPermissionMixin, generic.UpdateView):
     model = Task
     form_class = TaskForm
     template_name = "manager/task_form.html"
@@ -114,7 +114,7 @@ class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
         return context
 
 
-class TaskDeleteView(LoginRequiredMixin, generic.DeleteView):
+class TaskDeleteView(LoginRequiredMixin, TaskPermissionMixin, generic.DeleteView):
     model = Task
     template_name = "manager/task_confirm_delete.html"
     success_url = reverse_lazy("manager:task-list")
@@ -126,34 +126,23 @@ class TaskDeleteView(LoginRequiredMixin, generic.DeleteView):
 
 
 @method_decorator(require_POST, name="dispatch")
-class TaskToggleStatusView(LoginRequiredMixin, generic.View):
-    def post(self, request, pk):
-        try:
-            task = Task.objects.get(pk=pk)
-            new_status = request.POST.get("status")
+class TaskToggleStatusView(LoginRequiredMixin, TaskPermissionJSONMixin, generic.View):
+    model = Task
 
-            if new_status in [choice[0] for choice in Task.StatusChoices.choices]:
-                task.status = new_status
-                task.save()
+    def post(self, request, pk, *args, **kwargs):
+        new_status = (request.POST.get("status") or "").strip()
+        valid_values = {value for value, _ in Task._meta.get_field("status").choices}
+        if new_status not in valid_values:
+            return JsonResponse({"success": False, "error": "Invalid status"}, status=400)
 
-                return JsonResponse(
-                    {
-                        "success": True,
-                        "new_status": task.get_status_display(),
-                        "status_key": task.status
-                    }
-                )
-            else:
-                return JsonResponse(
-                    {
-                        "success": False,
-                        "error": "Invalid status"
-                    }
-                )
-        except Task.DoesNotExist:
-            return JsonResponse(
-                {
-                    "success": False,
-                    "error": "Task not found"
-                }
-            )
+        self.object.status = new_status
+        self.object.save(update_fields=["status"])
+
+        return JsonResponse(
+            {
+                "success": True,
+                "new_status": self.object.get_status_display(),
+                "status_key": self.object.status,
+            },
+            status=200,
+        )

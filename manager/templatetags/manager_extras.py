@@ -1,7 +1,18 @@
 from django import template
 
+from manager.permissions import is_manager, can_modify_task
+
+
 register = template.Library()
 
+
+@register.filter
+def user_is_manager(user) -> bool:
+    return is_manager(user)
+
+@register.simple_tag
+def can_modify(user, task) -> bool:
+    return can_modify_task(user, task)
 
 @register.simple_tag
 def page_window(page_obj, paginator, window: int = 2):
