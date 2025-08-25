@@ -54,6 +54,13 @@ background: #555;
     z-index: 1051 !important;
 }
 
+.dropzone--active {
+  outline: 2px dashed rgba(13,110,253,.35);
+  outline-offset: -6px;
+}
+
+.kanban-empty { pointer-events: none; }
+
 .bg-urgent {
     background: linear-gradient(45deg, #dc3545, #c82333) !important;
 }
