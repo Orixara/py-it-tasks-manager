@@ -35,7 +35,6 @@
     opacity: 0.5;
 }
 
-/* Task detail page status alert */
 #task-status-alert {
     transition: all 0.3s ease;
     border-left: 4px solid;
@@ -67,7 +66,6 @@
     100% { transform: scale(1); }
 }
 
-/* Z-index fixes for dropdowns */
 .dropdown-menu {
     z-index: 1060 !important;
 }
@@ -150,4 +148,38 @@
 
 .badge-sm {
     font-size: 0.7em;
+}
+
+.kanban-search {
+    border: none;
+    background: rgba(255,255,255,0.9);
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.kanban-search:focus {
+    background: rgba(255,255,255,1);
+    box-shadow: 0 0 0 2px rgba(13,110,253,.25);
+    outline: none;
+}
+
+.kanban-search::placeholder {
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+.border-warning .kanban-search:focus {
+    box-shadow: 0 0 0 2px rgba(255,193,7,.25);
+}
+
+.border-info .kanban-search:focus {
+    box-shadow: 0 0 0 2px rgba(13,202,240,.25);
+}
+
+.border-primary .kanban-search:focus {
+    box-shadow: 0 0 0 2px rgba(13,110,253,.25);
+}
+
+.border-success .kanban-search:focus {
+    box-shadow: 0 0 0 2px rgba(25,135,84,.25);
 }

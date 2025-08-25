@@ -24,6 +24,12 @@
               <span class="badge bg-dark ms-2 kanban-count">{{ todo_tasks|length }}</span>
             </h5>
           </div>
+
+          <div class="px-2 py-2 border-bottom">
+            <input type="text" class="form-control form-control-sm kanban-search" 
+                   placeholder="Search in To Do..." 
+                   data-column="todo">
+          </div>
           <div class="card-body p-2 drop-zone"
                style="max-height: 70vh; overflow-y: auto;"
                data-status="todo">
@@ -78,6 +84,12 @@
               <span class="badge bg-dark ms-2 kanban-count">{{ in_progress_tasks|length }}</span>
             </h5>
           </div>
+
+          <div class="px-2 py-2 border-bottom">
+            <input type="text" class="form-control form-control-sm kanban-search" 
+                   placeholder="Search in Progress..." 
+                   data-column="in_progress">
+          </div>
           <div class="card-body p-2 drop-zone"
                style="max-height: 70vh; overflow-y: auto;"
                data-status="in_progress">
@@ -130,6 +142,12 @@
               <i class="bi bi-eye"></i> Review
               <span class="badge bg-dark ms-2 kanban-count">{{ review_tasks|length }}</span>
             </h5>
+          </div>
+
+          <div class="px-2 py-2 border-bottom">
+            <input type="text" class="form-control form-control-sm kanban-search" 
+                   placeholder="Search in Review..." 
+                   data-column="review">
           </div>
           <div class="card-body p-2 drop-zone"
                style="max-height: 70vh; overflow-y: auto;"
@@ -184,6 +202,12 @@
               <span class="badge bg-dark ms-2 kanban-count">{{ done_tasks|length }}</span>
             </h5>
           </div>
+
+          <div class="px-2 py-2 border-bottom">
+            <input type="text" class="form-control form-control-sm kanban-search" 
+                   placeholder="Search in Done..." 
+                   data-column="done">
+          </div>
           <div class="card-body p-2 drop-zone"
                style="max-height: 70vh; overflow-y: auto;"
                data-status="done">
@@ -235,4 +259,5 @@
 {% load static %}
 <script src="{% static 'js/kanban-dnd.js' %}"></script>
 <script src="{% static 'js/kanban-sort.js' %}"></script>
+<script src="{% static 'js/kanban-search.js' %}"></script>
 {% endblock %}
