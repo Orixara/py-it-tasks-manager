@@ -28,3 +28,44 @@ border-radius: 3px;
 .card-body::-webkit-scrollbar-thumb:hover {
 background: #555;
 }
+
+
+.dropdown-menu {
+    z-index: 1050 !important;
+}
+
+.dropdown.show {
+    z-index: 1050 !important;
+}
+
+
+.card {
+    position: relative;
+    z-index: 1;
+}
+
+.card:hover {
+    z-index: 2;
+}
+
+
+.dropdown.show .card,
+.dropdown.show {
+    z-index: 1051 !important;
+}
+
+.bg-urgent {
+    background: linear-gradient(45deg, #dc3545, #c82333) !important;
+}
+
+.bg-high {
+    background: linear-gradient(45deg, #fd7e14, #e55a00) !important;
+}
+
+.bg-medium {
+    background: linear-gradient(45deg, #198754, #146c43) !important;
+}
+
+.bg-low {
+    background: linear-gradient(45deg, #6c757d, #5a6268) !important;
+}

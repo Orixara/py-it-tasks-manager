@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% csrf_token %}
 
 {% block title %}Tasks - {{ block.super }}{% endblock %}
 
@@ -16,32 +17,60 @@
       <div class="row">
         {% for task in tasks %}
           <div class="col-md-6 col-lg-4 mb-3">
-            <a href="{% url 'manager:task-detail' task.pk %}" class="text-decoration-none text-reset">
-              <div class="card h-100 shadow-sm border-0">
-                <div class="card-body">
-                  <h5 class="card-title">{{ task.name }}</h5>
-                  <p class="card-text text-muted">{{ task.description|truncatewords:10 }}</p>
+            <div
+                class="card h-100 shadow border-start border-4 {% if task.status == 'done' %}
+                border-success opacity-75{% elif task.status == 'in_progress' %}
+                border-info{% elif task.status == 'review' %}
+                border-primary{% else %}
+                border-warning{% endif %}"
+            >
 
-                  <div class="mb-2">
-                    <span class="badge bg-{{ task.priority|lower }}">{{ task.get_priority_display }}</span>
-                    <span class="badge bg-secondary">{{ task.task_type }}</span>
-                  </div>
+              <div class="card-header bg-{{ task.priority|lower }} text-white py-2">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="badge bg-light text-dark">{{ task.task_type }}</span>
+                  <small class="opacity-75">{{ task.deadline|date:"M d" }}</small>
+                </div>
+              </div>
 
-                  <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">{{ task.deadline|date:"M d, Y" }}</small>
-                    {% if task.status == 'done' %}
-                      <span class="text-success">✓ {{ task.get_status_display }}</span>
-                    {% elif task.status == 'in_progress' %}
-                      <span class="text-info">🔄 {{ task.get_status_display }}</span>
-                    {% elif task.status == 'review' %}
-                      <span class="text-primary">👁️ {{ task.get_status_display }}</span>
-                    {% else %}
-                      <span class="text-warning">⏱ {{ task.get_status_display }}</span>
-                    {% endif %}
+              <div class="card-body">
+                <a href="{% url 'manager:task-detail' task.pk %}" class="text-decoration-none text-reset">
+                  <h5 class="card-title mb-2">{{ task.name }}</h5>
+                  <p class="card-text text-muted mb-3">{{ task.description|truncatewords:8 }}</p>
+
+                  {% if task.assignees.all %}
+                    <div class="mb-2">
+                      {% for assignee in task.assignees.all %}
+                        <span class="badge bg-secondary me-1" style="font-size: 0.7em;">{{ assignee.username }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </a>
+
+                <div class="mt-auto">
+                  <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle w-100 border-2" type="button" data-bs-toggle="dropdown">
+                      <span id="status-{{ task.pk }}">
+                        {% if task.status == 'done' %}
+                          <span class="text-success fw-bold">✓ {{ task.get_status_display }}</span>
+                        {% elif task.status == 'in_progress' %}
+                          <span class="text-info fw-bold">🔄 {{ task.get_status_display }}</span>
+                        {% elif task.status == 'review' %}
+                          <span class="text-primary fw-bold">👁️ {{ task.get_status_display }}</span>
+                        {% else %}
+                          <span class="text-warning fw-bold">⏱ {{ task.get_status_display }}</span>
+                        {% endif %}
+                      </span>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item status-option" href="#" data-task-id="{{ task.pk }}" data-status="todo">⏱ To Do</a></li>
+                      <li><a class="dropdown-item status-option" href="#" data-task-id="{{ task.pk }}" data-status="in_progress">🔄 In Progress</a></li>
+                      <li><a class="dropdown-item status-option" href="#" data-task-id="{{ task.pk }}" data-status="review">👁️ Review</a></li>
+                      <li><a class="dropdown-item status-option" href="#" data-task-id="{{ task.pk }}" data-status="done">✓ Done</a></li>
+                    </ul>
                   </div>
                 </div>
               </div>
-            </a>
+            </div>
           </div>
         {% endfor %}
       </div>
@@ -53,4 +82,7 @@
     {% endif %}
   </div>
 </div>
+
+{% load static %}
+<script src="{% static 'js/task-status-toggle.js' %}"></script>
 {% endblock %}
