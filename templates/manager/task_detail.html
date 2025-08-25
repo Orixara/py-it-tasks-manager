@@ -73,13 +73,13 @@
       </div>
       <div class="card-body">
         <div class="d-grid gap-2">
-          <a href="#" class="btn btn-primary">
+          <a href="{% url 'manager:task-update' pk=task.id %}" class="btn btn-primary">
             <i class="bi bi-pencil"></i> Edit Task
           </a>
           <button class="btn btn-success">
             <i class="bi bi-check-circle"></i> Mark as {% if task.is_completed %}Incomplete{% else %}Complete{% endif %}
           </button>
-          <a href="#" class="btn btn-danger">
+          <a href="{% url 'manager:task-delete' pk=task.id %}" class="btn btn-danger">
             <i class="bi bi-trash"></i> Delete Task
           </a>
           <a href="{% url 'manager:task-list' %}" class="btn btn-secondary">
