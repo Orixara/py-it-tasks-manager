@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, Http404
 from django.views.generic.detail import SingleObjectMixin
 
-from .permissions import can_modify_task
+from .permissions import can_modify_task, can_edit_or_delete_task
 
 
 class TaskPermissionMixin(UserPassesTestMixin):
@@ -11,7 +11,7 @@ class TaskPermissionMixin(UserPassesTestMixin):
 
     def test_func(self):
         task = self.get_object()
-        return can_modify_task(self.request.user, task)
+        return can_edit_or_delete_task(self.request.user, task)
 
     def handle_no_permission(self):
         if self.request.user.is_authenticated:

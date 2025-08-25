@@ -92,9 +92,8 @@
               {% elif task.status == 'in_progress' %}border-info
               {% elif task.status == 'review' %}border-primary
               {% else %}border-warning{% endif %}">
-              
-              <!-- Action buttons -->
-              {% can_modify user task as can_edit_task %}
+
+              {% can_edit_delete user task as can_edit_task %}
               {% if can_edit_task %}
               <div class="task-actions position-absolute top-0 end-0 m-2">
                 <div class="btn-group btn-group-sm">
@@ -147,7 +146,8 @@
                     {% endif %}
                   </span>
 
-                  {% if can_edit_task %}
+                  {% can_modify user task as can_change_status %}
+                  {% if can_change_status %}
                   <div class="dropdown">
                     <button class="btn btn-outline-secondary btn-sm dropdown-toggle" 
                             type="button" data-bs-toggle="dropdown">
@@ -173,7 +173,7 @@
             </div>
           </div>
 
-          {% can_modify user task as can_edit_task %}
+          {% can_edit_delete user task as can_edit_task %}
           {% if can_edit_task %}
           <div class="modal fade" id="deleteModal{{ task.pk }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-sm">

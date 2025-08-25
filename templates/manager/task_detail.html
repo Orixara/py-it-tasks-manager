@@ -17,9 +17,9 @@
             </div>
           </div>
 
-          {% can_modify user task as can_edit_task %}
-          {% if can_edit_task %}
           <div class="d-flex align-items-center gap-2">
+            {% can_modify user task as can_change_status %}
+            {% if can_change_status %}
             <div class="dropdown">
               <button class="btn btn-outline-success btn-sm dropdown-toggle" type="button"
                       data-bs-toggle="dropdown" aria-expanded="false" title="Change Status">
@@ -48,7 +48,10 @@
                 {% endfor %}
               </ul>
             </div>
+            {% endif %}
 
+            {% can_edit_delete user task as can_edit_task %}
+            {% if can_edit_task %}
             <a href="{% url 'manager:task-update' pk=task.id %}"
                class="btn btn-outline-primary btn-sm" title="Edit Task">
               <i class="bi bi-pencil"></i>
@@ -58,8 +61,8 @@
                     data-bs-toggle="modal" data-bs-target="#deleteModal" title="Delete Task">
               <i class="bi bi-trash"></i>
             </button>
+            {% endif %}
           </div>
-          {% endif %}
         </div>
 
         {% if task.status == 'done' %}
@@ -143,7 +146,7 @@
   </div>
 </div>
 
-{% can_modify user task as can_edit_task %}
+{% can_edit_delete user task as can_edit_task %}
 {% if can_edit_task %}
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
