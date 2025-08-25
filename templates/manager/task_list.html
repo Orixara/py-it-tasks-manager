@@ -26,9 +26,10 @@
               name="search"
               value="{{ search_value }}"
               class="form-control"
-              placeholder="Search by name or description"
+              placeholder="Search by name, description, task type, or assignee"
             >
           </div>
+
         </div>
 
         <div class="col-md-2">
@@ -85,62 +86,119 @@
     {% if tasks %}
       <div class="row">
         {% for task in tasks %}
-          <div class="col-md-6 col-lg-4 mb-3">
-            <div
-                class="card h-100 shadow border-start border-4
-                {% if task.status == 'done' %}border-success opacity-75
-                {% elif task.status == 'in_progress' %}border-info
-                {% elif task.status == 'review' %}border-primary
-                {% else %}border-warning{% endif %}"
-            >
-
-              <div class="card-header bg-{{ task.priority|lower }} text-white py-2">
-                <div class="d-flex justify-content-between align-items-center">
-                  <span class="badge bg-light text-dark">{{ task.task_type }}</span>
-                  <small class="opacity-75">{{ task.deadline|date:"M d" }}</small>
+          <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card task-card shadow-sm position-relative
+              {% if task.status == 'done' %}border-success opacity-75
+              {% elif task.status == 'in_progress' %}border-info
+              {% elif task.status == 'review' %}border-primary
+              {% else %}border-warning{% endif %}">
+              
+              <!-- Action buttons -->
+              {% can_modify user task as can_edit_task %}
+              {% if can_edit_task %}
+              <div class="task-actions position-absolute top-0 end-0 m-2">
+                <div class="btn-group btn-group-sm">
+                  <a href="{% url 'manager:task-update' pk=task.id %}" 
+                     class="btn btn-outline-primary btn-action" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <button type="button" class="btn btn-outline-danger btn-action" 
+                          data-bs-toggle="modal" 
+                          data-bs-target="#deleteModal{{ task.pk }}" 
+                          title="Delete">
+                    <i class="bi bi-trash"></i>
+                  </button>
                 </div>
               </div>
+              {% endif %}
 
               <div class="card-body">
                 <a href="{% url 'manager:task-detail' task.pk %}" class="text-decoration-none text-reset">
-                  <h5 class="card-title mb-2">{{ task.name }}</h5>
-                  <p class="card-text text-muted mb-3">{{ task.description|truncatewords:8 }}</p>
-
-                  {% if task.assignees.all %}
-                    <div class="mb-2">
-                      {% for assignee in task.assignees.all %}
-                        <span class="badge bg-secondary me-1" style="font-size: 0.7em;">{{ assignee.username }}</span>
-                      {% endfor %}
-                    </div>
-                  {% endif %}
+                  <h5 class="card-title">{{ task.name }}</h5>
+                  <p class="card-text text-muted">{{ task.description|truncatewords:10|default:"No description." }}</p>
                 </a>
+                
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div>
+                    <span class="badge bg-{{ task.priority|lower }}">{{ task.get_priority_display }}</span>
+                    <span class="badge bg-secondary">{{ task.task_type }}</span>
+                  </div>
+                  <small class="text-muted">{{ task.deadline|date:"M d" }}</small>
+                </div>
 
-                <div class="mt-auto">
+                {% if task.assignees.all %}
+                <div class="mb-2">
+                  {% for assignee in task.assignees.all %}
+                    <span class="badge bg-light text-dark">{{ assignee.username }}</span>
+                  {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center">
+                  <span id="status-{{ task.pk }}" class="status-display">
+                    {% if task.status == 'done' %}
+                      <span class="text-success fw-bold">✓ {{ task.get_status_display }}</span>
+                    {% elif task.status == 'in_progress' %}
+                      <span class="text-info fw-bold">🔄 {{ task.get_status_display }}</span>
+                    {% elif task.status == 'review' %}
+                      <span class="text-primary fw-bold">👁️ {{ task.get_status_display }}</span>
+                    {% else %}
+                      <span class="text-warning fw-bold">⏱ {{ task.get_status_display }}</span>
+                    {% endif %}
+                  </span>
+
+                  {% if can_edit_task %}
                   <div class="dropdown">
-                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle w-100 border-2" type="button" data-bs-toggle="dropdown">
-                      <span id="status-{{ task.pk }}">
-                        {% if task.status == 'done' %}
-                          <span class="text-success fw-bold">✓ {{ task.get_status_display }}</span>
-                        {% elif task.status == 'in_progress' %}
-                          <span class="text-info fw-bold">🔄 {{ task.get_status_display }}</span>
-                        {% elif task.status == 'review' %}
-                          <span class="text-primary fw-bold">👁️ {{ task.get_status_display }}</span>
-                        {% else %}
-                          <span class="text-warning fw-bold">⏱ {{ task.get_status_display }}</span>
-                        {% endif %}
-                      </span>
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" 
+                            type="button" data-bs-toggle="dropdown">
+                      <i class="bi bi-gear"></i>
                     </button>
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item status-option" href="#" data-task-id="{{ task.pk }}" data-status="todo">⏱ To Do</a></li>
-                      <li><a class="dropdown-item status-option" href="#" data-task-id="{{ task.pk }}" data-status="in_progress">🔄 In Progress</a></li>
-                      <li><a class="dropdown-item status-option" href="#" data-task-id="{{ task.pk }}" data-status="review">👁️ Review</a></li>
-                      <li><a class="dropdown-item status-option" href="#" data-task-id="{{ task.pk }}" data-status="done">✓ Done</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      {% for status_key, status_display in task.StatusChoices.choices %}
+                        {% if status_key != task.status %}
+                          <li>
+                            <button class="dropdown-item status-option" 
+                                    data-task-id="{{ task.pk }}" 
+                                    data-status="{{ status_key }}">
+                              {{ status_display }}
+                            </button>
+                          </li>
+                        {% endif %}
+                      {% endfor %}
                     </ul>
                   </div>
+                  {% endif %}
                 </div>
               </div>
             </div>
           </div>
+
+          {% can_modify user task as can_edit_task %}
+          {% if can_edit_task %}
+          <div class="modal fade" id="deleteModal{{ task.pk }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h6 class="modal-title">
+                    <i class="bi bi-exclamation-triangle text-danger"></i> 
+                    Delete Task
+                  </h6>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                  <p class="mb-2">Delete this task?</p>
+                  <strong class="text-muted">{{ task.name }}</strong>
+                </div>
+                <div class="modal-footer justify-content-center">
+                  <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                  <a href="{% url 'manager:task-delete' pk=task.id %}" class="btn btn-danger btn-sm">
+                    <i class="bi bi-trash"></i> Delete
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
         {% endfor %}
       </div>
     {% else %}

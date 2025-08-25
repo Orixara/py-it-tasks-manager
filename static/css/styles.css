@@ -1,65 +1,110 @@
 .task-card {
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
-  }
+}
 
 .task-card:hover {
-transform: translateY(-2px);
-box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.badge-sm {
-font-size: 0.7em;
+.task-actions {
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.card-body::-webkit-scrollbar {
-width: 6px;
+.task-card:hover .task-actions {
+    opacity: 1;
 }
 
-.card-body::-webkit-scrollbar-track {
-background: #f1f1f1;
+.btn-action {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.card-body::-webkit-scrollbar-thumb {
-background: #888;
-border-radius: 3px;
+.status-display {
+    transition: opacity 0.3s ease;
 }
 
-.card-body::-webkit-scrollbar-thumb:hover {
-background: #555;
+.status-updating .status-display {
+    opacity: 0.5;
 }
 
+/* Task detail page status alert */
+#task-status-alert {
+    transition: all 0.3s ease;
+    border-left: 4px solid;
+}
 
+.status-updated {
+    animation: statusUpdated 0.6s ease;
+}
+
+.alert-success {
+    border-left-color: #198754 !important;
+}
+
+.alert-info {
+    border-left-color: #0dcaf0 !important;
+}
+
+.alert-primary {
+    border-left-color: #0d6efd !important;
+}
+
+.alert-warning {
+    border-left-color: #ffc107 !important;
+}
+
+@keyframes statusUpdated {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+/* Z-index fixes for dropdowns */
 .dropdown-menu {
-    z-index: 1050 !important;
+    z-index: 1060 !important;
 }
 
 .dropdown.show {
-    z-index: 1050 !important;
+    z-index: 1060 !important;
 }
 
+.dropdown-toggle.show {
+    z-index: 1061 !important;
+}
 
-.card {
+.task-card .dropdown {
     position: relative;
-    z-index: 1;
+    z-index: 1060;
 }
 
-.card:hover {
-    z-index: 2;
+.task-card:hover {
+    z-index: 1059;
 }
 
-
-.dropdown.show .card,
-.dropdown.show {
-    z-index: 1051 !important;
+.card.border-success,
+.card.border-info, 
+.card.border-primary,
+.card.border-warning {
+    border-width: 3px !important;
+    border-left-width: 6px !important;
 }
 
 .dropzone--active {
-  outline: 2px dashed rgba(13,110,253,.35);
-  outline-offset: -6px;
+    outline: 2px dashed rgba(13,110,253,.35);
+    outline-offset: -6px;
 }
 
-.kanban-empty { pointer-events: none; }
+.kanban-empty { 
+    pointer-events: none; 
+}
 
 .bg-urgent {
     background: linear-gradient(45deg, #dc3545, #c82333) !important;
@@ -101,4 +146,8 @@ background: #555;
 @keyframes fadeInOut {
     0%, 100% { opacity: 0; }
     10%, 90% { opacity: 1; }
+}
+
+.badge-sm {
+    font-size: 0.7em;
 }
