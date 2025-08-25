@@ -4,35 +4,196 @@
 
 {% block content %}
 <div class="row">
-  <div class="col-md-8">
-    <div class="card">
-      <div class="card-body">
-        <h2><i class="bi bi-person"></i> My Profile</h2>
-
-        <div class="row">
-          <div class="col-md-6">
-            <p><strong>Username:</strong> {{ user.username }}</p>
-            <p><strong>Email:</strong> {{ user.email }}</p>
+  <div class="col-lg-4">
+    <div class="card mb-4">
+      <div class="card-body text-center">
+        <div class="mb-3">
+          <i class="bi bi-person-circle display-1 text-primary"></i>
+        </div>
+        <h4 class="card-title">{{ user.get_full_name|default:user.username }}</h4>
+        <p class="text-muted">{{ user.position|default:"Position not set" }}</p>
+        <hr>
+        <div class="row text-center">
+          <div class="col">
+            <p class="mb-0"><strong>{{ user.username }}</strong></p>
+            <small class="text-muted">Username</small>
           </div>
-          <div class="col-md-6">
-            <p><strong>First Name:</strong> {{ user.first_name|default:"Not set" }}</p>
-            <p><strong>Last Name:</strong> {{ user.last_name|default:"Not set" }}</p>
-            <p><strong>Position:</strong> {{ user.position|default:"Not set" }}</p>
+        </div>
+        <div class="row text-center mt-2">
+          <div class="col">
+            <p class="mb-0"><strong>{{ user.email|default:"No email" }}</strong></p>
+            <small class="text-muted">Email</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-graph-up"></i> Task Statistics</h5>
+      </div>
+      <div class="card-body">
+        <div class="row text-center mb-3">
+          <div class="col-6">
+            <div class="border rounded p-2">
+              <h3 class="text-primary mb-0">{{ assigned_count }}</h3>
+              <small class="text-muted">Assigned</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="border rounded p-2">
+              <h3 class="text-success mb-0">{{ created_count }}</h3>
+              <small class="text-muted">Created</small>
+            </div>
+          </div>
+        </div>
+
+        <h6 class="text-muted mb-2">Status Breakdown:</h6>
+        <div class="row g-2">
+          <div class="col-6">
+            <div class="d-flex align-items-center">
+              <span class="badge bg-warning text-dark me-2">{{ status_stats.todo }}</span>
+              <small>To Do</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="d-flex align-items-center">
+              <span class="badge bg-info me-2">{{ status_stats.in_progress }}</span>
+              <small>In Progress</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="d-flex align-items-center">
+              <span class="badge bg-primary me-2">{{ status_stats.review }}</span>
+              <small>Review</small>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="d-flex align-items-center">
+              <span class="badge bg-success me-2">{{ status_stats.done }}</span>
+              <small>Done</small>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="col-md-4">
-    <div class="card">
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-list-task"></i> Active Tasks</h5>
+      </div>
       <div class="card-body">
-        <h5>My Tasks Stats</h5>
-        <p><strong>Assigned to me:</strong> {{ assigned_count }}</p>
-        <p><strong>Created by me:</strong> {{ created_count }}</p>
-        <p><strong>Completed:</strong> {{ completed_count }}</p>
+        {% if active_tasks %}
+          <div class="row">
+            {% for task in active_tasks %}
+            <div class="col-lg-6 mb-3">
+              <div class="card h-100 border-left-{{ task.priority|lower }}">
+                <div class="card-body p-3">
+                  <a href="{% url 'manager:task-detail' task.pk %}" class="text-decoration-none text-reset">
+                    <h6 class="card-title mb-2">{{ task.name }}</h6>
+                    <p class="card-text text-muted mb-2">{{ task.description|truncatewords:8|default:"No description" }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <span class="badge bg-{{ task.priority|lower }} badge-sm">{{ task.get_priority_display }}</span>
+                        {% if task.status == 'todo' %}
+                          <span class="badge bg-warning text-dark badge-sm">To Do</span>
+                        {% elif task.status == 'in_progress' %}
+                          <span class="badge bg-info badge-sm">In Progress</span>
+                        {% elif task.status == 'review' %}
+                          <span class="badge bg-primary badge-sm">Review</span>
+                        {% endif %}
+                      </div>
+                      <small class="text-muted">{{ task.deadline|date:"M d" }}</small>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% if assigned_count > 10 %}
+          <div class="text-center">
+            <a href="{% url 'manager:task-list' %}?assignee={{ user.pk }}" class="btn btn-outline-primary btn-sm">
+              View All My Tasks ({{ assigned_count }})
+            </a>
+          </div>
+          {% endif %}
+        {% else %}
+          <div class="text-center text-muted">
+            <i class="bi bi-check-circle display-4"></i>
+            <p class="mt-2">No active tasks assigned to you</p>
+          </div>
+        {% endif %}
       </div>
     </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Weekly Completion (Last 4 Weeks)</h5>
+      </div>
+      <div class="card-body">
+        {% if weekly_stats %}
+          <div class="chart-container" style="max-height: 300px;">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Period</th>
+                  <th>Completed Tasks</th>
+                  <th>Visual</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for week in weekly_stats %}
+                <tr>
+                  <td>
+                    <small class="text-muted">{{ week.week_start }} - {{ week.week_end }}</small>
+                  </td>
+                  <td>
+                    <span class="badge bg-success">{{ week.completed }}</span>
+                  </td>
+                  <td>
+                    <div class="progress" style="width: 200px; height: 20px;">
+                      {% if week.completed > 0 %}
+                        <div class="progress-bar bg-success" 
+                             role="progressbar" 
+                             style="width: {% widthratio week.completed 10 100 %}%"
+                             aria-valuenow="{{ week.completed }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="10">
+                          {{ week.completed }}
+                        </div>
+                      {% else %}
+                        <div class="progress-bar bg-light text-muted" 
+                             role="progressbar" 
+                             style="width: 100%">
+                          0
+                        </div>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted text-center">No completion data available yet</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-12 text-center">
+    <a href="{% url 'manager:task-list' %}" class="btn btn-primary me-2">
+      <i class="bi bi-list"></i> View All Tasks
+    </a>
+    <a href="{% url 'manager:task-kanban' %}" class="btn btn-secondary">
+      <i class="bi bi-kanban"></i> Kanban Board
+    </a>
   </div>
 </div>
 {% endblock %}

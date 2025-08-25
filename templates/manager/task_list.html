@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% csrf_token %}
+{% load static %}
+{% load manager_extras %}
 
 {% block title %}Tasks - {{ block.super }}{% endblock %}
 
@@ -85,11 +87,11 @@
         {% for task in tasks %}
           <div class="col-md-6 col-lg-4 mb-3">
             <div
-                class="card h-100 shadow border-start border-4 {% if task.status == 'done' %}
-                border-success opacity-75{% elif task.status == 'in_progress' %}
-                border-info{% elif task.status == 'review' %}
-                border-primary{% else %}
-                border-warning{% endif %}"
+                class="card h-100 shadow border-start border-4
+                {% if task.status == 'done' %}border-success opacity-75
+                {% elif task.status == 'in_progress' %}border-info
+                {% elif task.status == 'review' %}border-primary
+                {% else %}border-warning{% endif %}"
             >
 
               <div class="card-header bg-{{ task.priority|lower }} text-white py-2">

@@ -37,7 +37,7 @@ class TaskFilterForm(forms.Form):
         required=False,
         widget=forms.TextInput(
             attrs={
-                "placeholder": "Search by name or description"
+                "placeholder": "Search by name, description, task type, or assignee"
             }
         ),
     )

@@ -46,6 +46,13 @@
     if (card.__dndBound) return;
     card.__dndBound = true;
 
+    if (card.dataset.canModify === "0") {
+      card.setAttribute("draggable", "false");
+      card.style.cursor = "default";
+      card.classList.add("opacity-50");
+      return;
+    }
+    
     card.setAttribute("draggable", "true");
     disableInnerNativeDnD(card);
 
@@ -75,7 +82,14 @@
   });
 
   function onDragStart(e) {
-    draggedEl = e.currentTarget;
+    const card = e.currentTarget;
+
+    if (card.dataset.canModify === "0") {
+      e.preventDefault();
+      return false;
+    }
+    
+    draggedEl = card;
     draggedEl.classList.add(DRAGGED_CLASS);
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", draggedEl.dataset.taskId);
@@ -155,7 +169,15 @@
         method: "POST",
         body: formData,
       });
-      if (!resp.ok) throw new Error(`Server responded ${resp.status}`);
+      
+      if (resp.status === 403) {
+        throw new Error("You don't have permission to modify this task");
+      }
+      
+      if (!resp.ok) {
+        const errorData = await resp.json();
+        throw new Error(errorData.error || `Server responded ${resp.status}`);
+      }
 
       attachCardHandlers(draggedEl);
       updateAllZonesState();

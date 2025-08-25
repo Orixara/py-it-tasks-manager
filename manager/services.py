@@ -24,7 +24,10 @@ def apply_task_filters(params: QueryDict) -> tuple[QuerySet, TaskFilterForm, str
 
     if search_value:
         queryset = queryset.filter(
-            Q(name__icontains=search_value) | Q(description__icontains=search_value)
+            Q(name__icontains=search_value) | 
+            Q(description__icontains=search_value) |
+            Q(task_type__name__icontains=search_value) |
+            Q(assignees__username__icontains=search_value)
         )
     if cleaned_data.get("status"):
         queryset = queryset.filter(status=cleaned_data["status"])
