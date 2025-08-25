@@ -13,6 +13,73 @@
       </a>
     </div>
 
+    <form method="get" class="card card-body mb-3">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label">Search</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input
+              type="text"
+              name="search"
+              value="{{ search_value }}"
+              class="form-control"
+              placeholder="Search by name or description"
+            >
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-select">
+            {% for value,label in filter_form.fields.status.choices %}
+              <option value="{{ value }}" {% if filter_form.data.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Priority</label>
+          <select name="priority" class="form-select">
+            {% for value,label in filter_form.fields.priority.choices %}
+              <option value="{{ value }}" {% if filter_form.data.priority == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Task Type</label>
+          <select name="task_type" class="form-select">
+            <option value="">{% if filter_form.fields.task_type.empty_label %}{{ filter_form.fields.task_type.empty_label }}{% else %}All types{% endif %}</option>
+            {% for obj in filter_form.fields.task_type.queryset %}
+              <option value="{{ obj.pk }}" {% if filter_form.data.task_type == obj.pk|stringformat:'s' %}selected{% endif %}>{{ obj }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Assignee</label>
+          <select name="assignee" class="form-select">
+            <option value="">{% if filter_form.fields.assignee.empty_label %}{{ filter_form.fields.assignee.empty_label }}{% else %}Anyone{% endif %}</option>
+            {% for user in filter_form.fields.assignee.queryset %}
+              <option value="{{ user.pk }}" {% if filter_form.data.assignee == user.pk|stringformat:'s' %}selected{% endif %}>
+                {{ user.username }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-12 d-flex gap-2">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-funnel"></i> Filter
+          </button>
+          <a href="{% url 'manager:task-list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-x-circle"></i> Reset
+          </a>
+        </div>
+      </div>
+    </form>
+
     {% if tasks %}
       <div class="row">
         {% for task in tasks %}

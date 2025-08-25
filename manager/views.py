@@ -6,14 +6,31 @@ from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from manager.forms import TaskForm
+from manager.forms import TaskForm, TaskFilterForm
 from manager.models import Task
+from manager.services import apply_task_filters, build_sticky_querystring
 
 
 class TaskListView(LoginRequiredMixin, generic.ListView):
     model = Task
     template_name = "manager/task_list.html"
     context_object_name = "tasks"
+    paginate_by = 12
+
+    def get_queryset(self):
+        queryset, self._filter_form, self._search_value = apply_task_filters(self.request.GET)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["filter_form"] = getattr(self, "_filter_form", TaskFilterForm(self.request.GET or None))
+        context["search_value"] = getattr(
+            self,
+            "_search_value",
+            (self.request.GET.get("search") or self.request.GET.get("q") or "").strip(),
+        )
+        context["current_query"] = build_sticky_querystring(self.request.GET)
+        return context
 
 
 class TaskKanbanView(LoginRequiredMixin, generic.ListView):
