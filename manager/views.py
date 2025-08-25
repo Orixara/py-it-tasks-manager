@@ -1,6 +1,9 @@
 from django.urls import reverse_lazy
 from django.views import generic
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from manager.forms import TaskForm
@@ -103,3 +106,37 @@ class TaskDeleteView(LoginRequiredMixin, generic.DeleteView):
         task_name = self.get_object().name
         messages.success(request, f"Task '{task_name}' was deleted successfully!")
         return super().delete(request, *args, **kwargs)
+
+
+@method_decorator(require_POST, name="dispatch")
+class TaskToggleStatusView(LoginRequiredMixin, generic.View):
+    def post(self, request, pk):
+        try:
+            task = Task.objects.get(pk=pk)
+            new_status = request.POST.get("status")
+
+            if new_status in [choice[0] for choice in Task.StatusChoices.choices]:
+                task.status = new_status
+                task.save()
+
+                return JsonResponse(
+                    {
+                        "success": True,
+                        "new_status": task.get_status_display(),
+                        "status_key": task.status
+                    }
+                )
+            else:
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error": "Invalid status"
+                    }
+                )
+        except Task.DoesNotExist:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Task not found"
+                }
+            )

@@ -7,6 +7,7 @@ from manager.views import (
     TaskUpdateView,
     TaskDeleteView,
     TaskKanbanView,
+    TaskToggleStatusView,
 )
 
 app_name = "manager"
@@ -18,4 +19,5 @@ urlpatterns = [
     path("task/<int:pk>/edit/", TaskUpdateView.as_view(), name="task-update"),
     path("task/<int:pk>/delete/", TaskDeleteView.as_view(), name="task-delete"),
     path("kanban/", TaskKanbanView.as_view(), name="task-kanban"),
+    path("task/<int:pk>/toggle-status/", TaskToggleStatusView.as_view(), name="task-toggle-status"),
 ]
