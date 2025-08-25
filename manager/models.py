@@ -23,10 +23,20 @@ class Task(models.Model):
         MEDIUM = "medium", "Medium"
         LOW = "low", "Low"
 
+    class StatusChoices(models.TextChoices):
+        TODO = "todo", "To Do"
+        IN_PROGRESS = "in_progress", "In Progress"
+        REVIEW = "review", "Review"
+        DONE = "done", "Done"
+
     name = models.CharField(max_length=163)
     description = models.TextField(max_length=512, blank=True, null=True)
     deadline = models.DateTimeField()
-    is_completed = models.BooleanField(default=False)
+    status = models.CharField(
+        max_length=20,
+        choices=StatusChoices.choices,
+        default=StatusChoices.TODO
+    )
     priority = models.CharField(
         max_length=20,
         choices=PriorityChoices.choices,

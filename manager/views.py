@@ -13,6 +13,28 @@ class TaskListView(LoginRequiredMixin, generic.ListView):
     context_object_name = "tasks"
 
 
+class TaskKanbanView(LoginRequiredMixin, generic.ListView):
+    model = Task
+    template_name = "manager/task_kanban.html"
+    context_object_name = "tasks"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tasks = Task.objects.all()
+        context.update(
+            {
+                "todo_tasks": tasks.filter(status=Task.StatusChoices.TODO),
+                "in_progress_tasks": tasks.filter(
+                    status=Task.StatusChoices.IN_PROGRESS
+                ),
+                "review_tasks": tasks.filter(status=Task.StatusChoices.REVIEW),
+                "done_tasks": tasks.filter(status=Task.StatusChoices.DONE),
+            }
+        )
+
+        return context
+
+
 class TaskDetailView(LoginRequiredMixin, generic.DetailView):
     model = Task
     template_name = "manager/task_detail.html"
@@ -28,8 +50,7 @@ class TaskCreateView(LoginRequiredMixin, generic.CreateView):
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         messages.success(
-            self.request,
-            f"Task '{form.instance.name}' was created successfully!"
+            self.request, f"Task '{form.instance.name}' was created successfully!"
         )
         return super().form_valid(form)
 
@@ -55,8 +76,7 @@ class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
 
     def form_valid(self, form):
         messages.success(
-            self.request,
-            f"Task '{form.instance.name}' was updated successfully!"
+            self.request, f"Task '{form.instance.name}' was updated successfully!"
         )
         return super().form_valid(form)
 
@@ -67,8 +87,7 @@ class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
                 "title": "Edit Task",
                 "button_text": "Update Task",
                 "cancel_url": reverse_lazy(
-                    "manager:task-detail",
-                    kwargs={"pk": self.object.pk}
+                    "manager:task-detail", kwargs={"pk": self.object.pk}
                 ),
             }
         )
@@ -82,8 +101,5 @@ class TaskDeleteView(LoginRequiredMixin, generic.DeleteView):
 
     def delete(self, request, *args, **kwargs):
         task_name = self.get_object().name
-        messages.success(
-            request,
-            f"Task '{task_name}' was deleted successfully!"
-        )
+        messages.success(request, f"Task '{task_name}' was deleted successfully!")
         return super().delete(request, *args, **kwargs)

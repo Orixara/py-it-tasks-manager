@@ -12,7 +12,14 @@
       <ul class="navbar-nav me-auto">
         {% if user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'manager:task-list' %}">All Tasks</a>
+            <div class="btn-group" role="group">
+              <a class="btn btn-outline-light btn-sm" href="{% url 'manager:task-list' %}">
+                <i class="bi bi-list"></i> List
+              </a>
+              <a class="btn btn-outline-light btn-sm" href="{% url 'manager:task-kanban' %}">
+                <i class="bi bi-kanban"></i> Kanban
+              </a>
+            </div>
           </li>
         {% endif %}
       </ul>

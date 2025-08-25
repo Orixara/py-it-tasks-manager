@@ -27,6 +27,6 @@ class ProfileView(LoginRequiredMixin, generic.TemplateView):
         context.update({
             "assigned_count": user.assigned_tasks.count(),
             "created_count": user.created_tasks.count(),
-            "completed_count": user.assigned_tasks.filter(is_completed=True).count(),
+            "completed_count": user.assigned_tasks.filter(status='done').count(),
         })
         return context

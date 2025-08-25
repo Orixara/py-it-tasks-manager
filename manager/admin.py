@@ -15,13 +15,13 @@ class TaskAdmin(admin.ModelAdmin):
         "task_type",
         "priority",
         "deadline",
-        "is_completed",
+        "status",
         "created_by"
     )
     list_filter = (
         "task_type",
         "priority",
-        "is_completed",
+        "status",
         "created_at"
     )
     search_fields = ("name", "description")

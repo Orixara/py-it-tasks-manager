@@ -1,0 +1,30 @@
+.task-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+
+.task-card:hover {
+transform: translateY(-2px);
+box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.badge-sm {
+font-size: 0.7em;
+}
+
+.card-body::-webkit-scrollbar {
+width: 6px;
+}
+
+.card-body::-webkit-scrollbar-track {
+background: #f1f1f1;
+}
+
+.card-body::-webkit-scrollbar-thumb {
+background: #888;
+border-radius: 3px;
+}
+
+.card-body::-webkit-scrollbar-thumb:hover {
+background: #555;
+}
