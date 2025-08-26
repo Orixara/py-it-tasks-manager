@@ -2,6 +2,7 @@ from __future__ import annotations
 
 MANAGER_POSITIONS: set[str] = {"Manager", "Project Manager", "Team Lead"}
 
+
 def is_manager(user) -> bool:
     if not getattr(user, "is_authenticated", False):
         return False
@@ -10,6 +11,7 @@ def is_manager(user) -> bool:
     pos = getattr(user, "position", None)
     name = getattr(pos, "name", None)
     return name in MANAGER_POSITIONS
+
 
 def can_modify_task(user, task) -> bool:
     if not getattr(user, "is_authenticated", False):
@@ -22,6 +24,7 @@ def can_modify_task(user, task) -> bool:
         return task.assignees.filter(pk=user.pk).exists()
     except Exception:
         return False
+
 
 def can_edit_or_delete_task(user, task) -> bool:
     if not getattr(user, "is_authenticated", False):

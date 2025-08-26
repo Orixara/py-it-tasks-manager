@@ -15,13 +15,11 @@ class TaskModelTests(TestCase):
     def setUp(self):
         self.position = Position.objects.create(name="Developer")
         self.user = Worker.objects.create_user(
-            username='testuser',
-            password='testpass123',
-            position=self.position
+            username="testuser", password="testpass123", position=self.position
         )
         self.task_type = TaskType.objects.create(name="Bug Fix")
         self.deadline = timezone.now() + timedelta(days=7)
-        
+
     def test_task_creation_and_string_representation(self):
         task = Task.objects.create(
             name="Fix login bug",
@@ -29,7 +27,7 @@ class TaskModelTests(TestCase):
             deadline=self.deadline,
             priority=Task.PriorityChoices.HIGH,
             task_type=self.task_type,
-            created_by=self.user
+            created_by=self.user,
         )
         expected = "Fix login bug (High)"
         self.assertEqual(str(task), expected)
@@ -39,35 +37,34 @@ class TaskModelTests(TestCase):
             name="Test task",
             deadline=self.deadline,
             task_type=self.task_type,
-            created_by=self.user
+            created_by=self.user,
         )
         self.assertEqual(task.status, Task.StatusChoices.TODO)
         self.assertEqual(task.priority, Task.PriorityChoices.MEDIUM)
 
     def test_task_assignees_relationship(self):
         assignee = Worker.objects.create_user(
-            username='assignee',
-            password='testpass123'
+            username="assignee", password="testpass123"
         )
         task = Task.objects.create(
             name="Test task",
             deadline=self.deadline,
             task_type=self.task_type,
-            created_by=self.user
+            created_by=self.user,
         )
         task.assignees.add(assignee)
-        
+
         self.assertIn(assignee, task.assignees.all())
         self.assertIn(task, assignee.assigned_tasks.all())
 
     def test_task_status_and_priority_choices(self):
         task = Task.objects.create(
-            name="Test task", 
+            name="Test task",
             deadline=self.deadline,
             task_type=self.task_type,
             created_by=self.user,
             status=Task.StatusChoices.IN_PROGRESS,
-            priority=Task.PriorityChoices.URGENT
+            priority=Task.PriorityChoices.URGENT,
         )
         self.assertEqual(task.get_status_display(), "In Progress")
         self.assertEqual(task.get_priority_display(), "Urgent")

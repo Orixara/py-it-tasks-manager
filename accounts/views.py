@@ -29,5 +29,5 @@ class ProfileView(LoginRequiredMixin, generic.TemplateView):
         context = super().get_context_data(**kwargs)
         profile_data = get_full_user_profile_data(self.request.user)
         context.update(profile_data)
-        
+
         return context

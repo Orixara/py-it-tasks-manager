@@ -20,7 +20,7 @@ class Worker(AbstractUser):
         related_name="workers",
         on_delete=models.CASCADE,
         null=True,
-        blank=True
+        blank=True,
     )
 
     class Meta:

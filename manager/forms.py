@@ -36,9 +36,7 @@ class TaskFilterForm(forms.Form):
         label="Search",
         required=False,
         widget=forms.TextInput(
-            attrs={
-                "placeholder": "Search by name, description, task type, or assignee"
-            }
+            attrs={"placeholder": "Search by name, description, task type, or assignee"}
         ),
     )
     status = forms.ChoiceField(
@@ -70,7 +68,11 @@ class TaskFilterForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        status_choices = [("", "All statuses")] + list(Task._meta.get_field("status").choices)
-        priority_choices = [("", "All priorities")] + list(Task._meta.get_field("priority").choices)
+        status_choices = [("", "All statuses")] + list(
+            Task._meta.get_field("status").choices
+        )
+        priority_choices = [("", "All priorities")] + list(
+            Task._meta.get_field("priority").choices
+        )
         self.fields["status"].choices = status_choices
         self.fields["priority"].choices = priority_choices

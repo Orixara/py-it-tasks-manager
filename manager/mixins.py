@@ -26,9 +26,13 @@ class TaskPermissionJSONMixin(SingleObjectMixin):
         try:
             self.object = self.get_object()
         except Http404:
-            return JsonResponse({"success": False, "error": "Task not found"}, status=404)
+            return JsonResponse(
+                {"success": False, "error": "Task not found"}, status=404
+            )
 
         if not can_modify_task(request.user, self.object):
-            return JsonResponse({"success": False, "error": self.permission_error_message}, status=403)
+            return JsonResponse(
+                {"success": False, "error": self.permission_error_message}, status=403
+            )
 
         return super().dispatch(request, *args, **kwargs)

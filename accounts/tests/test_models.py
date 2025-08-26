@@ -29,17 +29,15 @@ class WorkerModelTests(TestCase):
             password="testpass123",
             first_name="John",
             last_name="Doe",
-            position=position
+            position=position,
         )
-        
+
         self.assertEqual(str(user), "john_dev (John Doe)")
         self.assertEqual(user.position, position)
 
     def test_worker_creation_without_position(self):
         user = Worker.objects.create_user(
-            username="jane_dev",
-            email="jane@example.com",
-            password="testpass123"
+            username="jane_dev", email="jane@example.com", password="testpass123"
         )
         self.assertEqual(str(user), "jane_dev")
         self.assertIsNone(user.position)

@@ -15,25 +15,23 @@ class PermissionsTests(TestCase):
     def setUp(self):
         self.manager_position = Position.objects.create(name="Manager")
         self.developer_position = Position.objects.create(name="Developer")
-        
+
         self.manager = Worker.objects.create_user(
-            username='manager',
-            password='testpass123',
-            position=self.manager_position
+            username="manager", password="testpass123", position=self.manager_position
         )
         self.developer = Worker.objects.create_user(
-            username='developer',
-            password='testpass123',
-            position=self.developer_position
+            username="developer",
+            password="testpass123",
+            position=self.developer_position,
         )
-        
+
         self.task_type = TaskType.objects.create(name="Bug Fix")
         self.deadline = timezone.now() + timedelta(days=7)
         self.task = Task.objects.create(
             name="Test task",
             deadline=self.deadline,
             task_type=self.task_type,
-            created_by=self.developer
+            created_by=self.developer,
         )
 
     def test_manager_permissions(self):
@@ -50,19 +48,17 @@ class PermissionsTests(TestCase):
 
     def test_task_assignee_permissions(self):
         assignee = Worker.objects.create_user(
-            username='assignee',
-            password='testpass123'
+            username="assignee", password="testpass123"
         )
         self.task.assignees.add(assignee)
-        
+
         self.assertTrue(can_modify_task(assignee, self.task))
         self.assertFalse(can_edit_or_delete_task(assignee, self.task))
 
     def test_unrelated_user_permissions(self):
         unrelated_user = Worker.objects.create_user(
-            username='unrelated',
-            password='testpass123'
+            username="unrelated", password="testpass123"
         )
-        
+
         self.assertFalse(can_modify_task(unrelated_user, self.task))
         self.assertFalse(can_edit_or_delete_task(unrelated_user, self.task))

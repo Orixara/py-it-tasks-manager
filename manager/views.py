@@ -21,10 +21,10 @@ from manager.mixins import TaskPermissionMixin, TaskPermissionJSONMixin
 
 class LandingPageView(generic.TemplateView):
     template_name = "landing/landing_page.html"
-    
+
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('manager:task-list')
+            return redirect("manager:task-list")
         return super().dispatch(request, *args, **kwargs)
 
 
