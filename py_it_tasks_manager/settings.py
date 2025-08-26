@@ -137,6 +137,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/app/'
+LOGOUT_REDIRECT_URL = '/'
 
 if DEBUG:
     INTERNAL_IPS = [

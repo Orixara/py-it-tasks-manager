@@ -20,9 +20,12 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from manager.views import LandingPageView
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("manager.urls")),
+    path("", LandingPageView.as_view(), name="landing"),
+    path("app/", include("manager.urls")),
     path("accounts/", include("accounts.urls"))
 ]
 

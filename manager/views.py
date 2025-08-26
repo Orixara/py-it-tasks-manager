@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
 
 from manager.forms import TaskForm, TaskFilterForm
 from manager.models import Task
@@ -16,6 +17,15 @@ from manager.services import (
     cache_user_permissions,
 )
 from manager.mixins import TaskPermissionMixin, TaskPermissionJSONMixin
+
+
+class LandingPageView(generic.TemplateView):
+    template_name = "landing/landing_page.html"
+    
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('manager:task-list')
+        return super().dispatch(request, *args, **kwargs)
 
 
 class TaskListView(LoginRequiredMixin, generic.ListView):
