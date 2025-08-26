@@ -8,7 +8,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from manager.forms import TaskForm, TaskFilterForm
 from manager.models import Task
-from manager.services import apply_task_filters, build_sticky_querystring
+from manager.services import (
+    build_sticky_querystring,
+    get_tasks_by_status_with_permissions,
+    get_filtered_tasks_with_permissions,
+    get_optimized_task_queryset,
+    cache_user_permissions,
+)
 from manager.mixins import TaskPermissionMixin, TaskPermissionJSONMixin
 
 
@@ -19,19 +25,33 @@ class TaskListView(LoginRequiredMixin, generic.ListView):
     paginate_by = 6
 
     def get_queryset(self):
-        queryset, self._filter_form, self._search_value = apply_task_filters(self.request.GET)
+        queryset, self._filter_form, self._search_value, self._user_permissions = (
+            get_filtered_tasks_with_permissions(self.request.GET, self.request.user)
+        )
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["filter_form"] = getattr(self, "_filter_form", TaskFilterForm(self.request.GET or None))
-        context["search_value"] = getattr(
-            self,
-            "_search_value",
-            (self.request.GET.get("search") or self.request.GET.get("q") or "").strip(),
+        context.update(
+            {
+                "filter_form": getattr(
+                    self, "_filter_form", TaskFilterForm(self.request.GET or None)
+                ),
+                "search_value": getattr(
+                    self,
+                    "_search_value",
+                    (
+                        self.request.GET.get("search")
+                        or self.request.GET.get("q")
+                        or ""
+                    ).strip(),
+                ),
+                "current_query": build_sticky_querystring(self.request.GET),
+                "user_permissions": getattr(self, "_user_permissions", {}),
+            }
         )
-        context["current_query"] = build_sticky_querystring(self.request.GET)
         return context
+
 
 class TaskKanbanView(LoginRequiredMixin, generic.ListView):
     model = Task
@@ -40,17 +60,8 @@ class TaskKanbanView(LoginRequiredMixin, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        tasks = Task.objects.all()
-        context.update(
-            {
-                "todo_tasks": tasks.filter(status=Task.StatusChoices.TODO),
-                "in_progress_tasks": tasks.filter(
-                    status=Task.StatusChoices.IN_PROGRESS
-                ),
-                "review_tasks": tasks.filter(status=Task.StatusChoices.REVIEW),
-                "done_tasks": tasks.filter(status=Task.StatusChoices.DONE),
-            }
-        )
+        kanban_data = get_tasks_by_status_with_permissions(self.request.user)
+        context.update(kanban_data)
 
         return context
 
@@ -59,6 +70,15 @@ class TaskDetailView(LoginRequiredMixin, generic.DetailView):
     model = Task
     template_name = "manager/task_detail.html"
     context_object_name = "task"
+
+    def get_queryset(self):
+        return get_optimized_task_queryset()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_permissions = cache_user_permissions([self.object], self.request.user)
+        context["user_permissions"] = user_permissions
+        return context
 
 
 class TaskCreateView(LoginRequiredMixin, generic.CreateView):
@@ -91,6 +111,9 @@ class TaskUpdateView(LoginRequiredMixin, TaskPermissionMixin, generic.UpdateView
     form_class = TaskForm
     template_name = "manager/task_form.html"
 
+    def get_queryset(self):
+        return get_optimized_task_queryset()
+
     def get_success_url(self):
         return reverse_lazy("manager:task-detail", kwargs={"pk": self.object.pk})
 
@@ -119,6 +142,9 @@ class TaskDeleteView(LoginRequiredMixin, TaskPermissionMixin, generic.DeleteView
     template_name = "manager/task_confirm_delete.html"
     success_url = reverse_lazy("manager:task-list")
 
+    def get_queryset(self):
+        return get_optimized_task_queryset()
+
     def delete(self, request, *args, **kwargs):
         task_name = self.get_object().name
         messages.success(request, f"Task '{task_name}' was deleted successfully!")
@@ -133,7 +159,9 @@ class TaskToggleStatusView(LoginRequiredMixin, TaskPermissionJSONMixin, generic.
         new_status = (request.POST.get("status") or "").strip()
         valid_values = {value for value, _ in Task._meta.get_field("status").choices}
         if new_status not in valid_values:
-            return JsonResponse({"success": False, "error": "Invalid status"}, status=400)
+            return JsonResponse(
+                {"success": False, "error": "Invalid status"}, status=400
+            )
 
         self.object.status = new_status
         self.object.save(update_fields=["status"])

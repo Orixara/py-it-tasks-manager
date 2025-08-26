@@ -93,8 +93,8 @@
               {% elif task.status == 'review' %}border-primary
               {% else %}border-warning{% endif %}">
 
-              {% can_edit_delete user task as can_edit_task %}
-              {% if can_edit_task %}
+              {% with perms=user_permissions|get_permission:task.id %}
+              {% if perms.can_edit_delete %}
               <div class="task-actions position-absolute top-0 end-0 m-2">
                 <div class="btn-group btn-group-sm">
                   <a href="{% url 'manager:task-update' pk=task.id %}" 
@@ -125,9 +125,9 @@
                   <small class="text-muted">{{ task.deadline|date:"M d" }}</small>
                 </div>
 
-                {% if task.assignees.all %}
+                {% if task.prefetched_assignees %}
                 <div class="mb-2">
-                  {% for assignee in task.assignees.all %}
+                  {% for assignee in task.prefetched_assignees %}
                     <span class="badge bg-light text-dark">{{ assignee.username }}</span>
                   {% endfor %}
                 </div>
@@ -146,8 +146,7 @@
                     {% endif %}
                   </span>
 
-                  {% can_modify user task as can_change_status %}
-                  {% if can_change_status %}
+                  {% if perms.can_modify %}
                   <div class="dropdown">
                     <button class="btn btn-outline-secondary btn-sm dropdown-toggle" 
                             type="button" data-bs-toggle="dropdown">
@@ -170,11 +169,10 @@
                   {% endif %}
                 </div>
               </div>
-            </div>
-          </div>
+              </div>
+              </div>
 
-          {% can_edit_delete user task as can_edit_task %}
-          {% if can_edit_task %}
+              {% if perms.can_edit_delete %}
           <div class="modal fade" id="deleteModal{{ task.pk }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-sm">
               <div class="modal-content">
@@ -199,6 +197,7 @@
             </div>
           </div>
           {% endif %}
+          {% endwith %}
         {% endfor %}
       </div>
     {% else %}
