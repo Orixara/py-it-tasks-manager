@@ -138,4 +138,10 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 LOGIN_URL = '/accounts/login/'
 
+if DEBUG:
+    INTERNAL_IPS = [
+        "127.0.0.1",
+        "localhost",
+    ]
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
