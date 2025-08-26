@@ -12,22 +12,28 @@ def get_user_profile_stats(user) -> Dict[str, Any]:
     if not getattr(user, "is_authenticated", False):
         return {}
 
-    user_tasks = Task.objects.filter(Q(created_by=user) | Q(assignees=user)).distinct()
+    user_tasks = Task.objects.filter(
+        Q(created_by=user) | Q(assignees=user)
+    ).distinct()
 
     status_stats = user_tasks.aggregate(
         total_assigned=Count("id", filter=Q(assignees=user)),
         total_created=Count("id", filter=Q(created_by=user)),
         todo_count=Count(
-            "id", filter=Q(assignees=user, status=Task.StatusChoices.TODO)
+            "id",
+            filter=Q(assignees=user, status=Task.StatusChoices.TODO)
         ),
         in_progress_count=Count(
-            "id", filter=Q(assignees=user, status=Task.StatusChoices.IN_PROGRESS)
+            "id",
+            filter=Q(assignees=user, status=Task.StatusChoices.IN_PROGRESS)
         ),
         review_count=Count(
-            "id", filter=Q(assignees=user, status=Task.StatusChoices.REVIEW)
+            "id",
+            filter=Q(assignees=user, status=Task.StatusChoices.REVIEW)
         ),
         done_count=Count(
-            "id", filter=Q(assignees=user, status=Task.StatusChoices.DONE)
+            "id",
+            filter=Q(assignees=user, status=Task.StatusChoices.DONE)
         ),
     )
 
@@ -49,7 +55,11 @@ def get_user_active_tasks(user, limit: int = 10):
         return Task.objects.none()
 
     return (
-        Task.objects.select_related("task_type", "created_by", "created_by__position")
+        Task.objects.select_related(
+            "task_type",
+            "created_by",
+            "created_by__position"
+        )
         .prefetch_related(
             Prefetch(
                 "assignees",
@@ -70,7 +80,10 @@ def get_user_active_tasks(user, limit: int = 10):
     )
 
 
-def get_user_weekly_stats(user, weeks: int = 4) -> List[Dict[str, Any]]:
+def get_user_weekly_stats(
+        user,
+        weeks: int = 4
+) -> List[Dict[str, Any]]:
     if not getattr(user, "is_authenticated", False):
         return []
 
@@ -91,7 +104,9 @@ def get_user_weekly_stats(user, weeks: int = 4) -> List[Dict[str, Any]]:
         )
 
     weekly_data = (
-        Task.objects.filter(Q(assignees=user) & Q(status=Task.StatusChoices.DONE))
+        Task.objects.filter(
+            Q(assignees=user) & Q(status=Task.StatusChoices.DONE)
+        )
         .distinct()
         .aggregate(
             week_0=Count(
@@ -149,27 +164,38 @@ def get_full_user_profile_data(user) -> Dict[str, Any]:
             "assigned_count": 0,
             "created_count": 0,
             "completed_count": 0,
-            "status_stats": {"todo": 0, "in_progress": 0, "review": 0, "done": 0},
+            "status_stats": {
+                "todo": 0,
+                "in_progress": 0,
+                "review": 0,
+                "done": 0
+            },
             "active_tasks": Task.objects.none(),
             "weekly_stats": [],
         }
     today = timezone.now().date()
-    user_tasks = Task.objects.filter(Q(created_by=user) | Q(assignees=user)).distinct()
+    user_tasks = Task.objects.filter(
+        Q(created_by=user) | Q(assignees=user)
+    ).distinct()
 
     combined_stats = user_tasks.aggregate(
         total_assigned=Count("id", filter=Q(assignees=user)),
         total_created=Count("id", filter=Q(created_by=user)),
         todo_count=Count(
-            "id", filter=Q(assignees=user, status=Task.StatusChoices.TODO)
+            "id",
+            filter=Q(assignees=user, status=Task.StatusChoices.TODO)
         ),
         in_progress_count=Count(
-            "id", filter=Q(assignees=user, status=Task.StatusChoices.IN_PROGRESS)
+            "id",
+            filter=Q(assignees=user, status=Task.StatusChoices.IN_PROGRESS)
         ),
         review_count=Count(
-            "id", filter=Q(assignees=user, status=Task.StatusChoices.REVIEW)
+            "id",
+            filter=Q(assignees=user, status=Task.StatusChoices.REVIEW)
         ),
         done_count=Count(
-            "id", filter=Q(assignees=user, status=Task.StatusChoices.DONE)
+            "id",
+            filter=Q(assignees=user, status=Task.StatusChoices.DONE)
         ),
         week_0=Count(
             "id",

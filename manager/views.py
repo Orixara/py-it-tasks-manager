@@ -1,5 +1,5 @@
 from django.urls import reverse_lazy
-from django.views import generic, View
+from django.views import generic
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -36,7 +36,10 @@ class TaskListView(LoginRequiredMixin, generic.ListView):
 
     def get_queryset(self):
         queryset, self._filter_form, self._search_value, self._user_permissions = (
-            get_filtered_tasks_with_permissions(self.request.GET, self.request.user)
+            get_filtered_tasks_with_permissions(
+                self.request.GET,
+                self.request.user
+            )
         )
         return queryset
 
@@ -45,7 +48,9 @@ class TaskListView(LoginRequiredMixin, generic.ListView):
         context.update(
             {
                 "filter_form": getattr(
-                    self, "_filter_form", TaskFilterForm(self.request.GET or None)
+                    self,
+                    "_filter_form",
+                    TaskFilterForm(self.request.GET or None)
                 ),
                 "search_value": getattr(
                     self,
@@ -86,7 +91,10 @@ class TaskDetailView(LoginRequiredMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user_permissions = cache_user_permissions([self.object], self.request.user)
+        user_permissions = cache_user_permissions(
+            [self.object],
+            self.request.user
+        )
         context["user_permissions"] = user_permissions
         return context
 
@@ -100,7 +108,8 @@ class TaskCreateView(LoginRequiredMixin, generic.CreateView):
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         messages.success(
-            self.request, f"Task '{form.instance.name}' was created successfully!"
+            self.request,
+            f"Task '{form.instance.name}' was created successfully!"
         )
         return super().form_valid(form)
 
@@ -116,7 +125,11 @@ class TaskCreateView(LoginRequiredMixin, generic.CreateView):
         return context
 
 
-class TaskUpdateView(LoginRequiredMixin, TaskPermissionMixin, generic.UpdateView):
+class TaskUpdateView(
+    LoginRequiredMixin,
+    TaskPermissionMixin,
+    generic.UpdateView
+):
     model = Task
     form_class = TaskForm
     template_name = "manager/task_form.html"
@@ -125,11 +138,15 @@ class TaskUpdateView(LoginRequiredMixin, TaskPermissionMixin, generic.UpdateView
         return get_optimized_task_queryset()
 
     def get_success_url(self):
-        return reverse_lazy("manager:task-detail", kwargs={"pk": self.object.pk})
+        return reverse_lazy(
+            "manager:task-detail",
+            kwargs={"pk": self.object.pk}
+        )
 
     def form_valid(self, form):
         messages.success(
-            self.request, f"Task '{form.instance.name}' was updated successfully!"
+            self.request,
+            f"Task '{form.instance.name}' was updated successfully!"
         )
         return super().form_valid(form)
 
@@ -147,7 +164,11 @@ class TaskUpdateView(LoginRequiredMixin, TaskPermissionMixin, generic.UpdateView
         return context
 
 
-class TaskDeleteView(LoginRequiredMixin, TaskPermissionMixin, generic.DeleteView):
+class TaskDeleteView(
+    LoginRequiredMixin,
+    TaskPermissionMixin,
+    generic.DeleteView
+):
     model = Task
     template_name = "manager/task_confirm_delete.html"
     success_url = reverse_lazy("manager:task-list")
@@ -157,17 +178,27 @@ class TaskDeleteView(LoginRequiredMixin, TaskPermissionMixin, generic.DeleteView
 
     def delete(self, request, *args, **kwargs):
         task_name = self.get_object().name
-        messages.success(request, f"Task '{task_name}' was deleted successfully!")
+        messages.success(
+            request,
+            f"Task '{task_name}' was deleted successfully!"
+        )
         return super().delete(request, *args, **kwargs)
 
 
 @method_decorator(require_POST, name="dispatch")
-class TaskToggleStatusView(LoginRequiredMixin, TaskPermissionJSONMixin, generic.View):
+class TaskToggleStatusView(
+    LoginRequiredMixin,
+    TaskPermissionJSONMixin,
+    generic.View
+):
     model = Task
 
     def post(self, request, pk, *args, **kwargs):
         new_status = (request.POST.get("status") or "").strip()
-        valid_values = {value for value, _ in Task._meta.get_field("status").choices}
+        valid_values = {
+            value
+            for value, _ in Task._meta.get_field("status").choices
+        }
         if new_status not in valid_values:
             return JsonResponse(
                 {"success": False, "error": "Invalid status"}, status=400

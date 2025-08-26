@@ -36,7 +36,9 @@ class TaskFilterForm(forms.Form):
         label="Search",
         required=False,
         widget=forms.TextInput(
-            attrs={"placeholder": "Search by name, description, task type, or assignee"}
+            attrs={
+                "placeholder": "Search by name, description, task type, or assignee"
+            }
         ),
     )
     status = forms.ChoiceField(

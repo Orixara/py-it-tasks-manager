@@ -58,9 +58,9 @@ def page_window(page_obj, paginator, window: int = 2):
     if left > 2:
         pages.append(None)
 
-    for p in range(left, right + 1):
-        if p not in (1, last):
-            pages.append(p)
+    for page in range(left, right + 1):
+        if page not in (1, last):
+            pages.append(page)
 
     if right < last - 1:
         pages.append(None)

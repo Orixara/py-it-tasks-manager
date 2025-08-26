@@ -15,7 +15,9 @@ class TaskPermissionMixin(UserPassesTestMixin):
 
     def handle_no_permission(self):
         if self.request.user.is_authenticated:
-            raise PermissionDenied("You have no permission to modify this task.")
+            raise PermissionDenied(
+                "You have no permission to modify this task."
+            )
         return super().handle_no_permission()
 
 
@@ -32,7 +34,10 @@ class TaskPermissionJSONMixin(SingleObjectMixin):
 
         if not can_modify_task(request.user, self.object):
             return JsonResponse(
-                {"success": False, "error": self.permission_error_message}, status=403
+                {
+                    "success": False,
+                    "error": self.permission_error_message
+                }, status=403
             )
 
         return super().dispatch(request, *args, **kwargs)

@@ -6,7 +6,15 @@ MANAGER_POSITIONS: set[str] = {"Manager", "Project Manager", "Team Lead"}
 def is_manager(user) -> bool:
     if not getattr(user, "is_authenticated", False):
         return False
-    if getattr(user, "is_superuser", False) or getattr(user, "is_staff", False):
+    if getattr(
+            user,
+            "is_superuser",
+            False
+    ) or getattr(
+        user,
+        "is_staff",
+        False
+    ):
         return True
     pos = getattr(user, "position", None)
     name = getattr(pos, "name", None)

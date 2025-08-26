@@ -13,7 +13,11 @@ Worker = get_user_model()
 
 def get_optimized_task_queryset() -> QuerySet[Task]:
     return (
-        Task.objects.select_related("task_type", "created_by", "created_by__position")
+        Task.objects.select_related(
+            "task_type",
+            "created_by",
+            "created_by__position"
+        )
         .prefetch_related(
             Prefetch(
                 "assignees",
@@ -25,10 +29,16 @@ def get_optimized_task_queryset() -> QuerySet[Task]:
     )
 
 
-def cache_user_permissions(tasks: List[Task], user) -> Dict[int, Dict[str, bool]]:
+def cache_user_permissions(
+        tasks: List[Task],
+        user
+) -> Dict[int, Dict[str, bool]]:
     if not getattr(user, "is_authenticated", False):
         return {
-            task.id: {"can_modify": False, "can_edit_delete": False} for task in tasks
+            task.id: {
+                "can_modify": False,
+                "can_edit_delete": False
+            } for task in tasks
         }
 
     user_is_manager = is_manager(user)

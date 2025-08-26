@@ -33,10 +33,14 @@ class Task(models.Model):
     description = models.TextField(max_length=512, blank=True, null=True)
     deadline = models.DateTimeField()
     status = models.CharField(
-        max_length=20, choices=StatusChoices.choices, default=StatusChoices.TODO
+        max_length=20,
+        choices=StatusChoices.choices,
+        default=StatusChoices.TODO
     )
     priority = models.CharField(
-        max_length=20, choices=PriorityChoices.choices, default=PriorityChoices.MEDIUM
+        max_length=20,
+        choices=PriorityChoices.choices,
+        default=PriorityChoices.MEDIUM
     )
     task_type = models.ForeignKey(
         TaskType, related_name="tasks", on_delete=models.CASCADE

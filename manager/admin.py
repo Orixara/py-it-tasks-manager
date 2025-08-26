@@ -10,7 +10,14 @@ class TaskTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ("name", "task_type", "priority", "deadline", "status", "created_by")
+    list_display = (
+        "name",
+        "task_type",
+        "priority",
+        "deadline",
+        "status",
+        "created_by"
+    )
     list_filter = ("task_type", "priority", "status", "created_at")
     search_fields = ("name", "description")
     filter_horizontal = ("assignees",)

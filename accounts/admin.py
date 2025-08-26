@@ -13,4 +13,8 @@ class PositionAdmin(admin.ModelAdmin):
 class WorkerAdmin(UserAdmin):
     list_display = ("username", "email", "first_name", "last_name", "position")
     list_filter = ("position", "is_staff", "is_active")
-    fieldsets = UserAdmin.fieldsets + (("Additional Info", {"fields": ("position",)}),)
+    fieldsets = UserAdmin.fieldsets + (
+        (
+            "Additional Info", {"fields": ("position",)}
+        ),
+    )

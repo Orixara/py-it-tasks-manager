@@ -1,7 +1,11 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
-from manager.permissions import is_manager, can_modify_task, can_edit_or_delete_task
+from manager.permissions import (
+    is_manager,
+    can_modify_task,
+    can_edit_or_delete_task
+)
 from manager.models import TaskType, Task
 from accounts.models import Position
 from datetime import timedelta
@@ -17,7 +21,9 @@ class PermissionsTests(TestCase):
         self.developer_position = Position.objects.create(name="Developer")
 
         self.manager = Worker.objects.create_user(
-            username="manager", password="testpass123", position=self.manager_position
+            username="manager",
+            password="testpass123",
+            position=self.manager_position
         )
         self.developer = Worker.objects.create_user(
             username="developer",

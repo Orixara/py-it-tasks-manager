@@ -19,10 +19,14 @@ class TaskViewsTests(TestCase):
         self.dev_position = Position.objects.create(name="Developer")
 
         self.manager = Worker.objects.create_user(
-            username="manager", password="testpass123", position=self.manager_position
+            username="manager",
+            password="testpass123",
+            position=self.manager_position
         )
         self.developer = Worker.objects.create_user(
-            username="developer", password="testpass123", position=self.dev_position
+            username="developer",
+            password="testpass123",
+            position=self.dev_position
         )
 
         self.task_type = TaskType.objects.create(name="Bug Fix")
