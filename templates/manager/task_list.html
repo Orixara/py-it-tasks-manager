@@ -91,7 +91,9 @@
               {% if task.status == 'done' %}border-success opacity-75
               {% elif task.status == 'in_progress' %}border-info
               {% elif task.status == 'review' %}border-primary
-              {% else %}border-warning{% endif %}">
+              {% else %}border-warning{% endif %}"
+              data-task-id="{{ task.pk }}"
+              data-current-status="{{ task.status }}">
 
               {% with perms=user_permissions|get_permission:task.id %}
               {% if perms.can_edit_delete %}
@@ -210,5 +212,5 @@
 </div>
 
 {% load static %}
-<script src="{% static 'js/task-status-toggle.js' %}"></script>
+<script src="{% static 'js/task-status-toggle.js' %}?v={{ request.session.session_key|slice:':8' }}"></script>
 {% endblock %}
