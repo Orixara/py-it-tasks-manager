@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% csrf_token %}
+{% load static %}
+{% load manager_extras %}
+
+{% block title %}Tasks - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1><i class="bi bi-list"></i> Task Management</h1>
+      <a href="{% url 'manager:task-create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Create New Task
+      </a>
+    </div>
+
+    <form method="get" class="card card-body mb-3">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label">Search</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input
+              type="text"
+              name="search"
+              value="{{ search_value }}"
+              class="form-control"
+              placeholder="Search by name, description, task type, or assignee"
+            >
+          </div>
+
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-select">
+            {% for value,label in filter_form.fields.status.choices %}
+              <option value="{{ value }}" {% if filter_form.data.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Priority</label>
+          <select name="priority" class="form-select">
+            {% for value,label in filter_form.fields.priority.choices %}
+              <option value="{{ value }}" {% if filter_form.data.priority == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Task Type</label>
+          <select name="task_type" class="form-select">
+            <option value="">{% if filter_form.fields.task_type.empty_label %}{{ filter_form.fields.task_type.empty_label }}{% else %}All types{% endif %}</option>
+            {% for obj in filter_form.fields.task_type.queryset %}
+              <option value="{{ obj.pk }}" {% if filter_form.data.task_type == obj.pk|stringformat:'s' %}selected{% endif %}>{{ obj }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Assignee</label>
+          <select name="assignee" class="form-select">
+            <option value="">{% if filter_form.fields.assignee.empty_label %}{{ filter_form.fields.assignee.empty_label }}{% else %}Anyone{% endif %}</option>
+            {% for user in filter_form.fields.assignee.queryset %}
+              <option value="{{ user.pk }}" {% if filter_form.data.assignee == user.pk|stringformat:'s' %}selected{% endif %}>
+                {{ user.username }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-12 d-flex gap-2">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-funnel"></i> Filter
+          </button>
+          <a href="{% url 'manager:task-list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-x-circle"></i> Reset
+          </a>
+        </div>
+      </div>
+    </form>
+
+    {% if tasks %}
+      <div class="row">
+        {% for task in tasks %}
+          <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card task-card shadow-sm position-relative
+              {% if task.status == 'done' %}border-success opacity-75
+              {% elif task.status == 'in_progress' %}border-info
+              {% elif task.status == 'review' %}border-primary
+              {% else %}border-warning{% endif %}"
+              data-task-id="{{ task.pk }}"
+              data-current-status="{{ task.status }}">
+
+              {% with perms=user_permissions|get_permission:task.id %}
+              {% if perms.can_edit_delete %}
+              <div class="task-actions position-absolute top-0 end-0 m-2">
+                <div class="btn-group btn-group-sm">
+                  <a href="{% url 'manager:task-update' pk=task.id %}" 
+                     class="btn btn-outline-primary btn-action" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <button type="button" class="btn btn-outline-danger btn-action" 
+                          data-bs-toggle="modal" 
+                          data-bs-target="#deleteModal{{ task.pk }}" 
+                          title="Delete">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+              {% endif %}
+
+              <div class="card-body">
+                <a href="{% url 'manager:task-detail' task.pk %}" class="text-decoration-none text-reset">
+                  <h5 class="card-title">{{ task.name }}</h5>
+                  <p class="card-text text-muted">{{ task.description|truncatewords:10|default:"No description." }}</p>
+                </a>
+                
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div>
+                    <span class="badge bg-{{ task.priority|lower }}">{{ task.get_priority_display }}</span>
+                    <span class="badge bg-secondary">{{ task.task_type }}</span>
+                  </div>
+                  <small class="text-muted">{{ task.deadline|date:"M d" }}</small>
+                </div>
+
+                {% if task.prefetched_assignees %}
+                <div class="mb-2">
+                  {% for assignee in task.prefetched_assignees %}
+                    <span class="badge bg-light text-dark">{{ assignee.username }}</span>
+                  {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center">
+                  <span id="status-{{ task.pk }}" class="status-display">
+                    {% if task.status == 'done' %}
+                      <span class="text-success fw-bold">✓ {{ task.get_status_display }}</span>
+                    {% elif task.status == 'in_progress' %}
+                      <span class="text-info fw-bold">🔄 {{ task.get_status_display }}</span>
+                    {% elif task.status == 'review' %}
+                      <span class="text-primary fw-bold">👁️ {{ task.get_status_display }}</span>
+                    {% else %}
+                      <span class="text-warning fw-bold">⏱ {{ task.get_status_display }}</span>
+                    {% endif %}
+                  </span>
+
+                  {% if perms.can_modify %}
+                  <div class="dropdown">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" 
+                            type="button" data-bs-toggle="dropdown">
+                      <i class="bi bi-gear"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      {% for status_key, status_display in task.StatusChoices.choices %}
+                        {% if status_key != task.status %}
+                          <li>
+                            <button class="dropdown-item status-option" 
+                                    data-task-id="{{ task.pk }}" 
+                                    data-status="{{ status_key }}">
+                              {{ status_display }}
+                            </button>
+                          </li>
+                        {% endif %}
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              </div>
+              </div>
+
+              {% if perms.can_edit_delete %}
+          <div class="modal fade" id="deleteModal{{ task.pk }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h6 class="modal-title">
+                    <i class="bi bi-exclamation-triangle text-danger"></i> 
+                    Delete Task
+                  </h6>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                  <p class="mb-2">Delete this task?</p>
+                  <strong class="text-muted">{{ task.name }}</strong>
+                </div>
+                <div class="modal-footer justify-content-center">
+                  <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                  <a href="{% url 'manager:task-delete' pk=task.id %}" class="btn btn-danger btn-sm">
+                    <i class="bi bi-trash"></i> Delete
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          {% endwith %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-info">
+        <h4>No tasks yet!</h4>
+        <p>Start by creating some tasks in the admin panel.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% load static %}
+<script src="{% static 'js/task-status-toggle.js' %}?v={{ request.session.session_key|slice:':8' }}"></script>
+{% endblock %}
