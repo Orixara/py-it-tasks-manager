@@ -1,3 +1,13 @@
+:root {
+  --z-toast: 1060;
+  --z-modal: 1055;
+  --z-modal-backdrop: 1050;
+  --z-navbar-dropdown: 1045;
+  --z-navbar: 1040;
+  --z-task-dropdown: 1030;
+  --z-task-card-hover: 1020;
+}
+
 .task-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
@@ -6,6 +16,7 @@
 .task-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: var(--z-task-card-hover);
 }
 
 .task-actions {
@@ -67,28 +78,24 @@
 }
 
 .dropdown-menu {
-    z-index: 1060 !important;
+    z-index: var(--z-task-dropdown) !important;
 }
 
 .dropdown.show {
-    z-index: 1060 !important;
+    z-index: var(--z-task-dropdown) !important;
 }
 
 .dropdown-toggle.show {
-    z-index: 1061 !important;
+    z-index: calc(var(--z-task-dropdown) + 1) !important;
 }
 
 .task-card .dropdown {
     position: relative;
-    z-index: 1060;
-}
-
-.task-card:hover {
-    z-index: 1059;
+    z-index: var(--z-task-dropdown);
 }
 
 .card.border-success,
-.card.border-info, 
+.card.border-info,
 .card.border-primary,
 .card.border-warning {
     border-width: 3px !important;
@@ -100,8 +107,8 @@
     outline-offset: -6px;
 }
 
-.kanban-empty { 
-    pointer-events: none; 
+.kanban-empty {
+    pointer-events: none;
 }
 
 .bg-urgent {
@@ -146,26 +153,31 @@
     10%, 90% { opacity: 1; }
 }
 
-.navbar .dropdown-menu {
-    z-index: 1055 !important;
+.app-navbar {
+  position: relative;
+  z-index: var(--z-navbar);
 }
 
-.navbar .dropdown {
-    z-index: 1055 !important;
-}
-
-.navbar .dropdown.show {
-    z-index: 1056 !important;
-}
-
-.navbar .dropdown-toggle.show {
-    z-index: 1056 !important;
+.app-navbar .dropdown-menu {
+  z-index: var(--z-navbar-dropdown);
 }
 
 .navbar-dark {
     background: linear-gradient(135deg, #1a1a2e, #16213e, #2d4a9e, #6c5ce7) !important;
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal {
+    z-index: var(--z-modal) !important;
+}
+
+.modal-backdrop {
+    z-index: var(--z-modal-backdrop) !important;
+}
+
+.toast-container {
+    z-index: var(--z-toast) !important;
 }
 
 body.login-body {
@@ -184,9 +196,9 @@ body.login-body::before {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, 
-        rgba(26, 26, 46, 0.7) 0%, 
-        rgba(22, 33, 62, 0.6) 50%, 
+    background: linear-gradient(135deg,
+        rgba(26, 26, 46, 0.7) 0%,
+        rgba(22, 33, 62, 0.6) 50%,
         rgba(108, 92, 231, 0.5) 100%
     );
     z-index: -1;
@@ -209,9 +221,9 @@ body.signup-body::before {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, 
-        rgba(26, 26, 46, 0.7) 0%, 
-        rgba(22, 33, 62, 0.6) 50%, 
+    background: linear-gradient(135deg,
+        rgba(26, 26, 46, 0.7) 0%,
+        rgba(22, 33, 62, 0.6) 50%,
         rgba(108, 92, 231, 0.5) 100%
     );
     z-index: -1;
@@ -286,12 +298,4 @@ body.app-body h1 {
 
 .border-success .kanban-search:focus {
     box-shadow: 0 0 0 2px rgba(25,135,84,.25);
-}
-
-.app-navbar {
-  position: relative;
-  z-index: 1100;
-}
-.app-navbar .dropdown-menu {
-  z-index: 1110;
 }
