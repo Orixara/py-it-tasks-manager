@@ -1,0 +1,83 @@
+{% load manager_extras %}
+
+{% if is_paginated %}
+<nav class="mt-4" aria-label="Pagination">
+  <ul class="pagination pagination-sm justify-content-center gap-1">
+
+    <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+      {% if page_obj.has_previous %}
+        <a class="page-link rounded-pill"
+           href="?page=1{% if current_query %}&{{ current_query }}{% endif %}"
+           rel="first" aria-label="First">
+          <i class="bi bi-chevron-double-left"></i>
+        </a>
+      {% else %}
+        <span class="page-link rounded-pill" aria-disabled="true">
+          <i class="bi bi-chevron-double-left"></i>
+        </span>
+      {% endif %}
+    </li>
+
+    <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+      {% if page_obj.has_previous %}
+        <a class="page-link rounded-pill"
+           href="?page={{ page_obj.number|add:'-1' }}{% if current_query %}&{{ current_query }}{% endif %}"
+           rel="prev" aria-label="Previous">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      {% else %}
+        <span class="page-link rounded-pill" aria-disabled="true">
+          <i class="bi bi-chevron-left"></i>
+        </span>
+      {% endif %}
+    </li>
+
+    {% page_window page_obj paginator 2 as pages %}
+    {% for p in pages %}
+      {% if p %}
+        <li class="page-item {% if p == page_obj.number %}active{% endif %}">
+          {% if p == page_obj.number %}
+            <span class="page-link rounded-pill">{{ p }}</span>
+          {% else %}
+            <a class="page-link rounded-pill"
+               href="?page={{ p }}{% if current_query %}&{{ current_query }}{% endif %}">{{ p }}</a>
+          {% endif %}
+        </li>
+      {% else %}
+        <li class="page-item disabled">
+          <span class="page-link rounded-pill">…</span>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+      {% if page_obj.has_next %}
+        <a class="page-link rounded-pill"
+           href="?page={{ page_obj.number|add:'1' }}{% if current_query %}&{{ current_query }}{% endif %}"
+           rel="next" aria-label="Next">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      {% else %}
+        <span class="page-link rounded-pill" aria-disabled="true">
+          <i class="bi bi-chevron-right"></i>
+        </span>
+      {% endif %}
+    </li>
+
+    <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+      {% if page_obj.has_next %}
+        <a class="page-link rounded-pill"
+           href="?page={{ paginator.num_pages }}{% if current_query %}&{{ current_query }}{% endif %}"
+           rel="last" aria-label="Last">
+          <i class="bi bi-chevron-double-right"></i>
+        </a>
+      {% else %}
+        <span class="page-link rounded-pill" aria-disabled="true">
+          <i class="bi bi-chevron-double-right"></i>
+        </span>
+      {% endif %}
+    </li>
+
+  </ul>
+</nav>
+{% endif %}

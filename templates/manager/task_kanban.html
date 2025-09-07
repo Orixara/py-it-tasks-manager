@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% load manager_extras %}
+
+{% block title %}Kanban Board - {{ block.super }}{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="row">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1><i class="bi bi-kanban"></i> Kanban Board</h1>
+      <a href="{% url 'manager:task-create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Create New Task
+      </a>
+    </div>
+
+    <div class="row g-3">
+      {# ===================== To Do ===================== #}
+      <div class="col-lg-3 col-md-6">
+        <div class="card h-100 border-warning">
+          <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+              <i class="bi bi-clock"></i> To Do
+              <span class="badge bg-dark ms-2 kanban-count">{{ todo_tasks|length }}</span>
+            </h5>
+          </div>
+
+          <div class="px-2 py-2 border-bottom">
+            <input type="text" class="form-control form-control-sm kanban-search" 
+                   placeholder="Search in To Do..." 
+                   data-column="todo">
+          </div>
+          <div class="card-body p-2 drop-zone"
+               style="max-height: 70vh; overflow-y: auto;"
+               data-status="todo">
+
+            <div class="kanban-empty text-center text-muted py-4 {% if todo_tasks %}d-none{% endif %}">
+              <i class="bi bi-inbox display-4"></i>
+              <p class="mt-2">No tasks</p>
+            </div>
+
+
+            <div class="kanban-items">
+              {% for task in todo_tasks %}
+              {% with perms=user_permissions|get_permission:task.id %}
+              <div class="card mb-2 shadow-sm task-card"
+                   draggable="true"
+                   data-task-id="{{ task.pk }}"
+                   data-current-status="{{ task.status }}"
+                   data-can-modify="{% if perms.can_modify %}1{% else %}0{% endif %}">
+                <div class="card-body p-3">
+                  <a href="{% url 'manager:task-detail' task.pk %}" class="text-decoration-none text-reset">
+                    <h6 class="card-title mb-2">{{ task.name }}</h6>
+                    <p class="card-text small text-muted mb-2">{{ task.description|truncatewords:6 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <span class="badge bg-{{ task.priority|lower }} badge-sm">{{ task.get_priority_display }}</span>
+                        <span class="badge bg-secondary badge-sm">{{ task.task_type }}</span>
+                      </div>
+                      <small class="text-muted">{{ task.deadline|date:"M d" }}</small>
+                    </div>
+                    {% if task.prefetched_assignees %}
+                    <div class="mt-2">
+                      {% for assignee in task.prefetched_assignees %}
+                        <span class="badge bg-light text-dark badge-sm">{{ assignee.username }}</span>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                  </a>
+                </div>
+              </div>
+              {% endwith %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ===================== In Progress ===================== #}
+      <div class="col-lg-3 col-md-6">
+        <div class="card h-100 border-info">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+              <i class="bi bi-arrow-clockwise"></i> In Progress
+              <span class="badge bg-dark ms-2 kanban-count">{{ in_progress_tasks|length }}</span>
+            </h5>
+          </div>
+
+          <div class="px-2 py-2 border-bottom">
+            <input type="text" class="form-control form-control-sm kanban-search" 
+                   placeholder="Search in Progress..." 
+                   data-column="in_progress">
+          </div>
+          <div class="card-body p-2 drop-zone"
+               style="max-height: 70vh; overflow-y: auto;"
+               data-status="in_progress">
+
+            <div class="kanban-empty text-center text-muted py-4 {% if in_progress_tasks %}d-none{% endif %}">
+              <i class="bi bi-inbox display-4"></i>
+              <p class="mt-2">No tasks</p>
+            </div>
+
+            <div class="kanban-items">
+              {% for task in in_progress_tasks %}
+              {% with perms=user_permissions|get_permission:task.id %}
+              <div class="card mb-2 shadow-sm task-card"
+                   draggable="true"
+                   data-task-id="{{ task.pk }}"
+                   data-current-status="{{ task.status }}"
+                   data-can-modify="{% if perms.can_modify %}1{% else %}0{% endif %}">
+                <div class="card-body p-3">
+                  <a href="{% url 'manager:task-detail' task.pk %}" class="text-decoration-none text-reset">
+                    <h6 class="card-title mb-2">{{ task.name }}</h6>
+                    <p class="card-text small text-muted mb-2">{{ task.description|truncatewords:6 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <span class="badge bg-{{ task.priority|lower }} badge-sm">{{ task.get_priority_display }}</span>
+                        <span class="badge bg-secondary badge-sm">{{ task.task_type }}</span>
+                      </div>
+                      <small class="text-muted">{{ task.deadline|date:"M d" }}</small>
+                    </div>
+                    {% if task.prefetched_assignees %}
+                    <div class="mt-2">
+                      {% for assignee in task.prefetched_assignees %}
+                        <span class="badge bg-light text-dark badge-sm">{{ assignee.username }}</span>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                  </a>
+                </div>
+              </div>
+              {% endwith %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ===================== Review ===================== #}
+      <div class="col-lg-3 col-md-6">
+        <div class="card h-100 border-primary">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+              <i class="bi bi-eye"></i> Review
+              <span class="badge bg-dark ms-2 kanban-count">{{ review_tasks|length }}</span>
+            </h5>
+          </div>
+
+          <div class="px-2 py-2 border-bottom">
+            <input type="text" class="form-control form-control-sm kanban-search" 
+                   placeholder="Search in Review..." 
+                   data-column="review">
+          </div>
+          <div class="card-body p-2 drop-zone"
+               style="max-height: 70vh; overflow-y: auto;"
+               data-status="review">
+
+            <div class="kanban-empty text-center text-muted py-4 {% if review_tasks %}d-none{% endif %}">
+              <i class="bi bi-inbox display-4"></i>
+              <p class="mt-2">No tasks</p>
+            </div>
+
+            <div class="kanban-items">
+              {% for task in review_tasks %}
+              {% with perms=user_permissions|get_permission:task.id %}
+              <div class="card mb-2 shadow-sm task-card"
+                   draggable="true"
+                   data-task-id="{{ task.pk }}"
+                   data-current-status="{{ task.status }}"
+                   data-can-modify="{% if perms.can_modify %}1{% else %}0{% endif %}">
+                <div class="card-body p-3">
+                  <a href="{% url 'manager:task-detail' task.pk %}" class="text-decoration-none text-reset">
+                    <h6 class="card-title mb-2">{{ task.name }}</h6>
+                    <p class="card-text small text-muted mb-2">{{ task.description|truncatewords:6 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <span class="badge bg-{{ task.priority|lower }} badge-sm">{{ task.get_priority_display }}</span>
+                        <span class="badge bg-secondary badge-sm">{{ task.task_type }}</span>
+                      </div>
+                      <small class="text-muted">{{ task.deadline|date:"M d" }}</small>
+                    </div>
+                    {% if task.prefetched_assignees %}
+                    <div class="mt-2">
+                      {% for assignee in task.prefetched_assignees %}
+                        <span class="badge bg-light text-dark badge-sm">{{ assignee.username }}</span>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                  </a>
+                </div>
+              </div>
+              {% endwith %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ===================== Done ===================== #}
+      <div class="col-lg-3 col-md-6">
+        <div class="card h-100 border-success">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+              <i class="bi bi-check-circle"></i> Done
+              <span class="badge bg-dark ms-2 kanban-count">{{ done_tasks|length }}</span>
+            </h5>
+          </div>
+
+          <div class="px-2 py-2 border-bottom">
+            <input type="text" class="form-control form-control-sm kanban-search" 
+                   placeholder="Search in Done..." 
+                   data-column="done">
+          </div>
+          <div class="card-body p-2 drop-zone"
+               style="max-height: 70vh; overflow-y: auto;"
+               data-status="done">
+
+            <div class="kanban-empty text-center text-muted py-4 {% if done_tasks %}d-none{% endif %}">
+              <i class="bi bi-inbox display-4"></i>
+              <p class="mt-2">No tasks</p>
+            </div>
+
+            <div class="kanban-items">
+              {% for task in done_tasks %}
+              {% with perms=user_permissions|get_permission:task.id %}
+              <div class="card mb-2 shadow-sm task-card opacity-75"
+                   draggable="true"
+                   data-task-id="{{ task.pk }}"
+                   data-current-status="{{ task.status }}"
+                   data-can-modify="{% if perms.can_modify %}1{% else %}0{% endif %}">
+                <div class="card-body p-3">
+                  <a href="{% url 'manager:task-detail' task.pk %}" class="text-decoration-none text-reset">
+                    <h6 class="card-title mb-2">{{ task.name }}</h6>
+                    <p class="card-text small text-muted mb-2">{{ task.description|truncatewords:6 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <span class="badge bg-{{ task.priority|lower }} badge-sm">{{ task.get_priority_display }}</span>
+                        <span class="badge bg-secondary badge-sm">{{ task.task_type }}</span>
+                      </div>
+                      <small class="text-muted">{{ task.deadline|date:"M d" }}</small>
+                    </div>
+                    {% if task.prefetched_assignees %}
+                    <div class="mt-2">
+                      {% for assignee in task.prefetched_assignees %}
+                        <span class="badge bg-light text-dark badge-sm">{{ assignee.username }}</span>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                  </a>
+                </div>
+              </div>
+              {% endwith %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% load static %}
+<script src="{% static 'js/kanban-dnd.js' %}"></script>
+<script src="{% static 'js/kanban-sort.js' %}"></script>
+<script src="{% static 'js/kanban-search.js' %}"></script>
+{% endblock %}

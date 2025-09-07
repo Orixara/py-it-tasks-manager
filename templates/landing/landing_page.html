@@ -1,0 +1,165 @@
+{% extends "base_landing.html" %}
+{% load static %}
+
+{% block content %}
+<section class="hero-section">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="container">
+    <div class="row min-vh-100 align-items-center">
+      <div class="col-lg-6 col-md-8 mx-auto text-center hero-content">
+        <div class="hero-card">
+          <h1 class="hero-title mb-4">
+            Manage IT Tasks 
+            <span class="text-gradient">Efficiently</span>
+          </h1>
+          <p class="hero-subtitle mb-4">
+            Transform your project management with our intuitive Kanban board system. 
+            Organize, track, and collaborate on tasks with your team seamlessly.
+          </p>
+          
+          <div class="hero-features mb-5">
+            <div class="row g-3">
+              <div class="col-4">
+                <div class="feature-icon">
+                  <i class="bi bi-kanban"></i>
+                </div>
+                <small>Kanban Board</small>
+              </div>
+              <div class="col-4">
+                <div class="feature-icon">
+                  <i class="bi bi-people"></i>
+                </div>
+                <small>Team Collaboration</small>
+              </div>
+              <div class="col-4">
+                <div class="feature-icon">
+                  <i class="bi bi-graph-up"></i>
+                </div>
+                <small>Progress Tracking</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-cta">
+            <a href="{% url 'accounts:signup' %}" class="btn btn-get-started btn-lg me-3">
+              <i class="bi bi-rocket-takeoff"></i> Get Started
+            </a>
+            <a href="{% url 'accounts:login' %}?next=/app/" class="btn btn-outline-light btn-lg">
+              <i class="bi bi-box-arrow-in-right"></i> Login
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="floating-elements">
+    <div class="float-element float-1">
+      <i class="bi bi-check-circle"></i>
+    </div>
+    <div class="float-element float-2">
+      <i class="bi bi-lightning"></i>
+    </div>
+    <div class="float-element float-3">
+      <i class="bi bi-star"></i>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="features-section py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-10 mx-auto">
+        <div class="text-center mb-5">
+          <h2 class="section-title">Why Choose Our Task Manager?</h2>
+          <p class="section-subtitle">Everything you need to manage IT projects efficiently</p>
+        </div>
+        
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="feature-card">
+              <div class="feature-card-icon">
+                <i class="bi bi-layout-three-columns"></i>
+              </div>
+              <h4>Intuitive Kanban</h4>
+              <p>Visualize your workflow with drag-and-drop task management across customizable columns.</p>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="feature-card">
+              <div class="feature-card-icon">
+                <i class="bi bi-shield-check"></i>
+              </div>
+              <h4>Secure & Reliable</h4>
+              <p>Enterprise-grade security with role-based permissions and data protection.</p>
+            </div>
+          </div>
+          
+          <div class="col-md-4">
+            <div class="feature-card">
+              <div class="feature-card-icon">
+                <i class="bi bi-speedometer2"></i>
+              </div>
+              <h4>Real-time Updates</h4>
+              <p>Stay synchronized with your team through instant notifications and live updates.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about" class="about-section py-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-4 mb-lg-0">
+        <h2 class="section-title">Built for IT Teams</h2>
+        <p class="section-text">
+          Our task management system is specifically designed for IT professionals who need 
+          powerful project organization without complexity. From bug tracking to feature 
+          development, manage everything in one place.
+        </p>
+        <ul class="feature-list">
+          <li><i class="bi bi-check2-circle text-primary"></i> Priority-based task organization</li>
+          <li><i class="bi bi-check2-circle text-primary"></i> Deadline tracking and alerts</li>
+          <li><i class="bi bi-check2-circle text-primary"></i> Team assignment and collaboration</li>
+          <li><i class="bi bi-check2-circle text-primary"></i> Progress visualization</li>
+        </ul>
+      </div>
+      <div class="col-lg-6">
+        <div class="about-mockup">
+          <div class="mockup-card">
+            <div class="mockup-header">
+              <div class="mockup-controls">
+                <span class="mockup-dot"></span>
+                <span class="mockup-dot"></span>
+                <span class="mockup-dot"></span>
+              </div>
+            </div>
+            <div class="mockup-content">
+              <div class="mockup-kanban">
+                <div class="mockup-column">
+                  <h6>To Do</h6>
+                  <div class="mockup-task urgent"></div>
+                  <div class="mockup-task medium"></div>
+                </div>
+                <div class="mockup-column">
+                  <h6>In Progress</h6>
+                  <div class="mockup-task high"></div>
+                </div>
+                <div class="mockup-column">
+                  <h6>Done</h6>
+                  <div class="mockup-task low"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
