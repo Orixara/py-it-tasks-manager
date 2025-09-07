@@ -119,7 +119,15 @@ def get_filtered_tasks_with_permissions(
     if cleaned_data.get("task_type"):
         queryset = queryset.filter(task_type=cleaned_data["task_type"])
     if cleaned_data.get("assignee"):
-        queryset = queryset.filter(assignees=cleaned_data["assignee"])
+        assignee_value = cleaned_data["assignee"]
+        if assignee_value == "no_assignee":
+            queryset = queryset.filter(assignees__isnull=True)
+        else:
+            try:
+                assignee_id = int(assignee_value)
+                queryset = queryset.filter(assignees__id=assignee_id)
+            except (ValueError, TypeError):
+                pass
 
     filtered_queryset = queryset.distinct()
     tasks_list = list(filtered_queryset)
@@ -157,7 +165,15 @@ def apply_task_filters(params: QueryDict) -> tuple[QuerySet, TaskFilterForm, str
     if cleaned_data.get("task_type"):
         queryset = queryset.filter(task_type=cleaned_data["task_type"])
     if cleaned_data.get("assignee"):
-        queryset = queryset.filter(assignees=cleaned_data["assignee"])
+        assignee_value = cleaned_data["assignee"]
+        if assignee_value == "no_assignee":
+            queryset = queryset.filter(assignees__isnull=True)
+        else:
+            try:
+                assignee_id = int(assignee_value)
+                queryset = queryset.filter(assignees__id=assignee_id)
+            except (ValueError, TypeError):
+                pass
 
     return queryset.distinct(), form, search_value
 

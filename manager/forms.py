@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 from manager.models import Task, TaskType
 
@@ -29,6 +31,14 @@ class TaskForm(forms.ModelForm):
             "deadline": forms.DateTimeInput(attrs={"type": "datetime-local"}),
             "description": forms.Textarea(attrs={"rows": 4}),
         }
+
+    def clean_deadline(self):
+        deadline = self.cleaned_data.get('deadline')
+        if deadline and deadline < timezone.now():
+            raise ValidationError(
+                "Deadline cannot be in the past. Please select a future date and time."
+            )
+        return deadline
 
 
 class TaskFilterForm(forms.Form):
@@ -60,11 +70,10 @@ class TaskFilterForm(forms.Form):
         empty_label="All types",
         widget=forms.Select(),
     )
-    assignee = forms.ModelChoiceField(
+    assignee = forms.ChoiceField(
         label="Assignee",
         required=False,
-        queryset=Worker.objects.all(),
-        empty_label="Anyone",
+        choices=[],
         widget=forms.Select(),
     )
 
@@ -76,5 +85,14 @@ class TaskFilterForm(forms.Form):
         priority_choices = [("", "All priorities")] + list(
             Task._meta.get_field("priority").choices
         )
+
+        assignee_choices = [
+            ("", "Anyone"),
+            ("no_assignee", "No Assignee"),
+        ]
+        for worker in Worker.objects.all():
+            assignee_choices.append((str(worker.id), worker.username))
+        
         self.fields["status"].choices = status_choices
         self.fields["priority"].choices = priority_choices
+        self.fields["assignee"].choices = assignee_choices
