@@ -63,11 +63,8 @@
         <div class="col-md-2">
           <label class="form-label">Assignee</label>
           <select name="assignee" class="form-select">
-            <option value="">{% if filter_form.fields.assignee.empty_label %}{{ filter_form.fields.assignee.empty_label }}{% else %}Anyone{% endif %}</option>
-            {% for user in filter_form.fields.assignee.queryset %}
-              <option value="{{ user.pk }}" {% if filter_form.data.assignee == user.pk|stringformat:'s' %}selected{% endif %}>
-                {{ user.username }}
-              </option>
+            {% for value,label in filter_form.fields.assignee.choices %}
+              <option value="{{ value }}" {% if filter_form.data.assignee == value %}selected{% endif %}>{{ label }}</option>
             {% endfor %}
           </select>
         </div>
