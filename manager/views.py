@@ -41,6 +41,16 @@ class TaskListView(LoginRequiredMixin, generic.ListView):
                 self.request.user
             )
         )
+
+        assignee_raw = (self.request.GET.get("assignee") or "").strip()
+
+        if assignee_raw == "no_assignee":
+            queryset = queryset.filter(assignees__isnull=True)
+        elif assignee_raw:
+            try:
+                queryset = queryset.filter(assignees__id=int(assignee_raw))
+            except ValueError:
+                pass
         return queryset
 
     def get_context_data(self, **kwargs):

@@ -9,6 +9,18 @@ from manager.models import Task, TaskType
 Worker = get_user_model()
 
 
+def get_assignee_choices():
+    users = Worker.objects.only(
+        "id", "username"
+    ).order_by("username")
+    return [
+        ("", "Anyone"),
+        ("no_assignee", "No Assignee"),
+        *[(str(user.id), user.username) for user in users],
+    ]
+
+
+
 class TaskForm(forms.ModelForm):
     assignees = forms.ModelMultipleChoiceField(
         queryset=Worker.objects.all(),
@@ -41,41 +53,16 @@ class TaskForm(forms.ModelForm):
         return deadline
 
 
-def get_assignee_choices():
-    choices = [
-        ("", "Anyone"),
-        ("no_assignee", "No Assignee"),
-    ]
-
-    users = Worker.objects.values_list('id', 'username').order_by('username')
-    for user_id, username in users:
-        choices.append((str(user_id), username))
-    
-    return choices
-
-
 class TaskFilterForm(forms.Form):
     search = forms.CharField(
         label="Search",
         required=False,
-        widget=forms.TextInput(
-            attrs={
-                "placeholder": "Search by name, description, task type, or assignee"
-            }
-        ),
+        widget=forms.TextInput(attrs={
+            "placeholder": "Search by name, description, task type, or assignee"
+        }),
     )
-    status = forms.ChoiceField(
-        label="Status",
-        required=False,
-        choices=[],
-        widget=forms.Select(),
-    )
-    priority = forms.ChoiceField(
-        label="Priority",
-        required=False,
-        choices=[],
-        widget=forms.Select(),
-    )
+    status = forms.ChoiceField(label="Status", required=False, choices=[], widget=forms.Select())
+    priority = forms.ChoiceField(label="Priority", required=False, choices=[], widget=forms.Select())
     task_type = forms.ModelChoiceField(
         label="Task Type",
         required=False,
@@ -86,20 +73,17 @@ class TaskFilterForm(forms.Form):
     assignee = forms.ChoiceField(
         label="Assignee",
         required=False,
-        choices=get_assignee_choices,
+        choices=[],
         widget=forms.Select(),
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        status_choices = [("", "All statuses")] + list(
+        self.fields["status"].choices = [("", "All statuses")] + list(
             Task._meta.get_field("status").choices
         )
-        self.fields["status"].choices = status_choices
-
-        priority_choices = [("", "All priorities")] + list(
+        self.fields["priority"].choices = [("", "All priorities")] + list(
             Task._meta.get_field("priority").choices
         )
-        self.fields["priority"].choices = priority_choices
         self.fields["assignee"].choices = get_assignee_choices()
