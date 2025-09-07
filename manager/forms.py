@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-from django.core.cache import cache
 
 from manager.models import Task, TaskType
 
@@ -42,6 +41,19 @@ class TaskForm(forms.ModelForm):
         return deadline
 
 
+def get_assignee_choices():
+    choices = [
+        ("", "Anyone"),
+        ("no_assignee", "No Assignee"),
+    ]
+
+    users = Worker.objects.values_list('id', 'username').order_by('username')
+    for user_id, username in users:
+        choices.append((str(user_id), username))
+    
+    return choices
+
+
 class TaskFilterForm(forms.Form):
     search = forms.CharField(
         label="Search",
@@ -74,6 +86,7 @@ class TaskFilterForm(forms.Form):
     assignee = forms.ChoiceField(
         label="Assignee",
         required=False,
+        choices=get_assignee_choices,
         widget=forms.Select(),
     )
 
@@ -89,24 +102,4 @@ class TaskFilterForm(forms.Form):
             Task._meta.get_field("priority").choices
         )
         self.fields["priority"].choices = priority_choices
-
-        self.fields["assignee"].choices = self.get_cached_assignee_choices()
-        
-    def get_cached_assignee_choices(self):
-        cache_key = "task_filter_assignee_choices"
-        choices = cache.get(cache_key)
-        
-        if choices is None:
-            choices = [
-                ("", "Anyone"),
-                ("no_assignee", "No Assignee"),
-            ]
-
-            workers = Worker.objects.values_list(
-                'id', 'username'
-            ).order_by('username')
-            for worker_id, username in workers:
-                choices.append((str(worker_id), username))
-            cache.set(cache_key, choices, 15 * 60)
-            
-        return choices
+        self.fields["assignee"].choices = get_assignee_choices()
